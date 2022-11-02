@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
-import { JobsModule } from './jobs/jobs.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { JobModule } from './job/job.module';
 
 @Module({
-  imports: [PrismaModule, JobsModule],
+  imports: [PrismaModule, JobModule, ScheduleModule.forRoot()],
 })
 export class AppModule {}

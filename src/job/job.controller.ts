@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { JobsService } from './jobs.service';
+import { JobService } from './job.service';
 
 @Controller('jobs')
-export class JobsController {
-  constructor(private readonly service: JobsService) {}
+export class JobController {
+  constructor(private readonly service: JobService) {}
 
   @Get()
   async getJobs() {
