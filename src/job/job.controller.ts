@@ -6,7 +6,7 @@ export class JobController {
   constructor(private readonly service: JobService) {}
 
   @Get()
-  async getJobs() {
-    return this.service.getJobs();
+  async getAllJobs() {
+    return this.service.getAllJobs();
   }
 }
