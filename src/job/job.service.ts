@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { CacheTTL, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import puppeteer from 'puppeteer';
@@ -10,7 +10,11 @@ export class JobService {
   private readonly logger = new Logger(JobService.name);
 
   async getAllJobs() {
-    return this.prisma.job.findMany();
+    return this.prisma.job.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   // Gets HTML for dynamic pages
@@ -26,7 +30,7 @@ export class JobService {
       await page.goto(url, { waitUntil: 'networkidle2' });
 
       // Wait for Akamai scrape protection timeout
-      if (selector) await page.waitForSelector(selector, { timeout: 5000 });
+      if (selector) await page.waitForSelector(selector, { timeout: 7500 });
 
       const body = await page.content();
       await page.close();
@@ -40,7 +44,7 @@ export class JobService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async scrapeCaribbeanJobs() {
     const baseURL = 'https://www.caribbeanjobs.com';
     const url =
@@ -102,6 +106,62 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping Caribbean Jobs: ${e}`);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async scrapeJobsTT() {
+    const url =
+      'https://jobstt.com/search-results-jobs/?searchId=1668009993.4696&action=search&page=1&listings_per_page=100&view=list';
+
+    try {
+      this.logger.log('Scraping JobsTT');
+
+      const res = await fetch(url);
+      const body = await res.text();
+      let newJobs = 0;
+
+      const $ = cheerio.load(body);
+
+      const jobs = $('.listone');
+
+      this.logger.log(`${jobs.length} jobs found`);
+
+      for (const el of jobs.toArray().reverse()) {
+        const job = $(el);
+        const title = job.find('.list1right>h1>a>strong').text().trim();
+        const company = job.find('.list1right>h1>small').text().trim();
+        const jobUrl = job.find('.list1right>h1>a').attr('href');
+        const description = '';
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: jobUrl,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(`Finished scraping JobsTT. ${newJobs} new jobs added.`);
+    } catch (e) {
+      this.logger.error(`Error scraping JobsTT: ${e}`);
     }
   }
 }
