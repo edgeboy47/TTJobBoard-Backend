@@ -33,3 +33,32 @@ export const caribbeanJobsMarkup = `<div class="module job-result highlighted">
     </div>
 </div>
 </div>`;
+
+export const jobsTTMarkup = `<div class="listone "><div class="toggle94563">
+<div class="list1left"><a href="https://jobstt.com/company/104425/THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"><img src="https://jobstt.com/files/pictures/sportTT_20210510142043.png" alt="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED Image" title="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"></a></div>
+</div>
+<div class="list1right">
+<h1>
+<a href="https://jobstt.com/display-job/94563/HEAD,-CORPORATE-COMMUNICATIONS.html?searchId=1668026378.4109&amp;page=1"><strong>HEAD, CORPORATE COMMUNICATIONS</strong></a>
+    <!-- show/hide green text link - start -->
+                                                                    <span class="notforme_close" style="padding:5px 10px !important;"><a style="padding:0 !important;" data-id="94563" id="94563" data-sess="vau6r6llq90620a18s5rpgkb81">Hide this Job x</a></span>
+                                                        <!-- show/hide green text link - end -->
+<br><small>THE SPORTS COMPANY OF TRINIDAD &amp; TOBAGO LIMITED</small>
+</h1>
+<!-- class toggle start -->
+<div class="toggle94563">
+<div class="citycost">
+                                                                <span class="fulltimejob">Contract</span>
+            <span class="date">Posted On 11.09.2022</span>
+<span class="hr">Employer</span>
+</div>
+<div class="btnpart">
+                                                                                    <a href="https://jobstt.com/saved-ads/?listing_id=94563" onclick="popUpWindow('https://jobstt.com/saved-ads/?listing_id=94563&amp;displayForm=1', 690, 'Save this Job', true, true); return false;" class="star">Save This Job</a>&nbsp;
+                                                                        <a href="https://jobstt.com/display-job/94563/HEAD,-CORPORATE-COMMUNICATIONS.html?searchId=1668026378.4109&amp;page=1" class="smbtn">Show More</a>
+            <div class="clr"></div>
+<span id="formNote_94563" class="cvtips">
+            </span>
+</div>
+</div><!-- class toggle end -->
+</div>
+</div>`;
