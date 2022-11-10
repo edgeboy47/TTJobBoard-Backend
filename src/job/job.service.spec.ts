@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobService } from './job.service';
-import { caribbeanJobsMarkup, jobsTTMarkup } from './fixtures';
+import {
+  caribbeanJobsMarkup,
+  jobsTTMarkup,
+  trinidadJobsMarkup,
+} from './fixtures';
 import { PrismaService } from '../prisma/prisma.service';
 
 describe('JobService', () => {
@@ -97,7 +101,7 @@ describe('JobService', () => {
   });
 
   describe('Scraping JobsTT', () => {
-    beforeEach(() => {
+    beforeAll(() => {
       jest.spyOn(global, 'fetch').mockImplementation(
         jest.fn(() =>
           Promise.resolve({
@@ -105,6 +109,10 @@ describe('JobService', () => {
           }),
         ) as jest.Mock,
       );
+    });
+
+    afterAll(() => {
+      jest.clearAllMocks();
     });
 
     it('should call fetch', async () => {
@@ -147,6 +155,81 @@ describe('JobService', () => {
           url: expect.stringMatching(
             /https:\/\/jobstt\.com\/display-job\/94563\/HEAD,-CORPORATE-COMMUNICATIONS\.html\?searchId=[0-9]+\.[0-9]+&page=1/,
           ),
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeJobsTT();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping Trinidad Jobs', () => {
+    beforeAll(() => {
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            text: () => Promise.resolve<string>(trinidadJobsMarkup),
+          }),
+        ) as jest.Mock,
+      );
+    });
+
+    afterAll(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call fetch', async () => {
+      await service.scrapeTrinidadJobs();
+
+      expect(global.fetch).toBeCalledTimes(1);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeTrinidadJobs();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeTrinidadJobs();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeTrinidadJobs();
+
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Security Officer',
+          company: 'EUROPA (Trinidad & Tobago) Ltd',
+          description: '',
+          location: 'NATIONWIDE',
+          url: 'https://www.trinidadjob.com/job/security-officer-23/',
           sector: 'PRIVATE',
         },
       });

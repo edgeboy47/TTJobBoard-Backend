@@ -62,3 +62,45 @@ export const jobsTTMarkup = `<div class="listone "><div class="toggle94563">
 </div><!-- class toggle end -->
 </div>
 </div>`;
+
+export const trinidadJobsMarkup = `<div class="job-item ">
+<div class="job-image">
+<div class="img-avatar"><img alt="EUROPA (Trinidad &amp; Tobago) Ltd" src="https://www.trinidadjob.com/wp-content/uploads/2019/01/Europa3-60x60.png" srcset="https://www.trinidadjob.com/wp-content/uploads/2019/01/Europa3-120x120.png 2x" class="avatar avatar-60 photo" height="60" width="60"></div>                                            <div class="company iwj-job-page">
+    <h6>
+                                            <a class="theme-color" href="https://www.trinidadjob.com/employer/europa-trinidad-tobago-ltd/">EUROPA (Trinidad &amp; Tobago) Ltd</a>
+                                        </h6>
+</div>
+            </div>
+<div class="job-content-wrap">
+<div class="job-info yes-logo">
+<h3 class="job-title">
+<a href="https://www.trinidadjob.com/job/security-officer-23/">Security Officer</a>
+</h3>
+<div class="info-company">
+                            <div class="address"><i class="ion-android-pin"></i><span itemprop="jobLocation" itemscope="" itemtype="http://schema.org/Place">
+<span itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
+<span itemprop="addressLocality">NATIONWIDE</span>
+<span itemprop="addressRegion" style="display: none;">NATIONWIDE</span>
+<span itemprop="postalCode" style="display: none;">NATIONWIDE</span>
+<span itemprop="streetAddress" style="display: none;">NATIONWIDE</span>
+</span>
+</span></div>
+                                                    <div class="company"><i class="fa fa-suitcase"></i>
+                                            <a href="https://www.trinidadjob.com/employer/europa-trinidad-tobago-ltd/">EUROPA (Trinidad &amp; Tobago) Ltd</a>
+                                        </div>
+                                                    <div class="categories iwj-job-page">
+        <i class="fa fa-suitcase theme-color"></i>
+        <span><a href="https://www.trinidadjob.com/cat/security-law-enforcement/">SECURITY, LAW ENFORCEMENT</a></span>
+    </div>
+                        
+                            <div class="time-ago"><i class="fa fa-calendar theme-color"></i>12 hours ago</div>
+                    </div>
+<div class="job-type ">
+                                                    <button class="save-job" data-toggle="modal" data-target="#iwj-login-popup">
+        <i class="fa fa-heart"></i></button>
+                    </div>
+</div>
+    </div>
+
+
+</div>`;
