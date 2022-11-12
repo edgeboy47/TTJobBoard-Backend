@@ -20,27 +20,39 @@ export class JobService {
   // Gets HTML for dynamic pages
   async getMarkupWithPuppeteer(
     url: string,
-    selector?: string,
+    options?: { selector?: string; iframeName?: string },
   ): Promise<string> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    let body = '';
+
     try {
       this.logger.log('Retrieving markup using Puppeteer');
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
 
-      await page.goto(url, { waitUntil: 'networkidle2' });
+      await page.goto(url);
 
-      // Wait for Akamai scrape protection timeout
-      if (selector) await page.waitForSelector(selector, { timeout: 7500 });
+      // If the page has to load an iframe
+      if (options.iframeName) {
+        const frame = page
+          .frames()
+          .find((frame) => frame.name() === options.iframeName);
+        body = await frame.content();
+      }
 
-      const body = await page.content();
+      // Wait for possible scrape protection timeout
+      if (options.selector) {
+        await page.waitForSelector(options.selector, { timeout: 10000 });
+        body = await page.content();
+      }
+
+      this.logger.log('Markup retrieved successfully');
+    } catch (e) {
+      this.logger.error(`Failed to retrieve markup using Puppeteer: ${e}`);
+    } finally {
       await page.close();
       await browser.close();
 
-      this.logger.log('Markup retrieved successfully');
       return body;
-    } catch (e) {
-      this.logger.error(`Failed to retrieve markup using Puppeteer: ${e}`);
-      return '';
     }
   }
 
@@ -51,6 +63,7 @@ export class JobService {
     await this.scrapeCaribbeanJobs();
     await this.scrapeJobsTT();
     await this.scrapeTrinidadJobs();
+    await this.scrapeCRS();
 
     this.logger.log('Finished running all scrapers');
   }
@@ -65,7 +78,9 @@ export class JobService {
       this.logger.log('Scraping Caribbean Jobs');
 
       // Retrieve markup from CaribbeanJobs website
-      const body = await this.getMarkupWithPuppeteer(url, '.two-thirds');
+      const body = await this.getMarkupWithPuppeteer(url, {
+        selector: '.two-thirds',
+      });
 
       // Scrape the body markup
       const $ = cheerio.load(body);
@@ -243,6 +258,62 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping Trinidad Jobs: ${e}`);
+    }
+  }
+
+  async scrapeCRS() {
+    const url = 'https://www.crsrecruitment.co.tt/jobs/';
+
+    try {
+      let newJobs = 0;
+      this.logger.log('Scraping CRS');
+      const body = await this.getMarkupWithPuppeteer(url, {
+        iframeName: 'pcrframe',
+      });
+
+      const $ = cheerio.load(body);
+      const jobs = $('table.table-condensed>tbody>tr');
+
+      this.logger.log(`${jobs.length} jobs found`);
+
+      for (const el of jobs.toArray().reverse()) {
+        const job = $(el);
+
+        const title = job.find('.td_jobtitle>a').text().trim();
+        const company = '';
+        const description = '';
+        const jobURL = job.find('.td_jobtitle>a').attr('href');
+        const location = job.find('.td_location>span').text().trim();
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: `https://host.pcrecruiter.net${jobURL}`,
+              location,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(`Finished scraping CRS. ${newJobs} new jobs added.`);
+    } catch (e) {
+      this.logger.error(`Error scraping CRS: ${e}`);
     }
   }
 }
