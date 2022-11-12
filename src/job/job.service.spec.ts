@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JobService } from './job.service';
 import {
   caribbeanJobsMarkup,
+  crsMarkup,
   jobsTTMarkup,
   trinidadJobsMarkup,
 } from './fixtures';
@@ -16,7 +17,7 @@ describe('JobService', () => {
     .mock<typeof import('../prisma/prisma.service')>('../prisma/prisma.service')
     .setTimeout(10000);
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [JobService, PrismaService],
     }).compile();
@@ -31,18 +32,22 @@ describe('JobService', () => {
   });
 
   describe('Scraping Caribbean Jobs', () => {
-    beforeEach(async () => {
+    beforeAll(() => {
       jest
         .spyOn(service, 'getMarkupWithPuppeteer')
         .mockResolvedValue(caribbeanJobsMarkup);
     });
+
+    afterEach(() => jest.clearAllMocks());
 
     it('should get markup correctly', async () => {
       await service.scrapeCaribbeanJobs();
 
       expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);
       expect(
-        service.getMarkupWithPuppeteer(expect.any(String), expect.any(String)),
+        service.getMarkupWithPuppeteer(expect.any(String), {
+          selector: expect.any(String),
+        }),
       ).resolves.toBe(caribbeanJobsMarkup);
     });
 
@@ -111,7 +116,7 @@ describe('JobService', () => {
       );
     });
 
-    afterAll(() => {
+    afterEach(() => {
       jest.clearAllMocks();
     });
 
@@ -187,7 +192,7 @@ describe('JobService', () => {
       );
     });
 
-    afterAll(() => {
+    afterEach(() => {
       jest.clearAllMocks();
     });
 
@@ -245,6 +250,82 @@ describe('JobService', () => {
       // jest.spyOn(mockLogger, 'error');
 
       await service.scrapeJobsTT();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping CRS', () => {
+    beforeAll(() => {
+      jest
+        .spyOn(service, 'getMarkupWithPuppeteer')
+        .mockResolvedValue(crsMarkup);
+    });
+
+    afterEach(() => jest.clearAllMocks());
+
+    it('should get markup correctly', async () => {
+      await service.scrapeCRS();
+
+      expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);
+      expect(
+        service.getMarkupWithPuppeteer(expect.any(String), {
+          selector: expect.any(String),
+        }),
+      ).resolves.toBe(crsMarkup);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeCRS();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeCRS();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeCRS();
+
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Information Technology Manager',
+          company: '',
+          description: '',
+          url: expect.stringMatching(
+            /https:\/\/host.pcrecruiter.net\/pcrbin\/jobboard.aspx\?action=detail&recordid=[0-9]+&pcr-id=.+$/,
+          ),
+          location: 'Port of Spain',
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
 
       // expect(mockLogger.log).not.toBeCalled();
       // expect(mockLogger.error).toBeCalledTimes(1);

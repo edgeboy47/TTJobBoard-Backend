@@ -104,3 +104,20 @@ export const trinidadJobsMarkup = `<div class="job-item ">
 
 
 </div>`;
+
+export const crsMarkup = `<table class="table-condensed cf tp_rowitem" style="width: 100%;">
+<thead class="cf">
+<tr>
+<th class="th_positionlogo">Logo</th>
+<th class="th_jobtitle">Job Title</th>
+<th class="th_location">Location</th>
+<th class="th_jobtype">Job Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td data-title="Position Logo" class="td_positionlogo"><span><span class="positionlogo" style="background-image:url(/pcrbin/logo.exe?action=VIEW&amp;image=161318495112243&amp;dbid=Caribbean%20Resourcing%20Solutions.eveandersonrecruitment&amp;defaultpic=genericposition&amp;cache=);"></span></span></td>
+<td data-title="Job Title" class="td_jobtitle"><a href="/pcrbin/jobboard.aspx?action=detail&amp;recordid=161318495112243&amp;pcr-id=fGV2ZWFuZGVyc29ucmVjcnVpdG1lbnQu5mQHG8B6EBfPKs1C7KcVHRAwHHH%2Fgb7mT8rWlnGJ0F%2BRAt43XXcOsQ0bzF7TTEjsSwuWDbxKQG7xaSkiX4cpzWIfZFxRj22fCswuyyXnFm%2FEIXUpDm4Vgf44p7tAr4uaVKfJYlhw5PKbhhl1oK6FES1eXEoEclMQvagkLbXlSwQngiyRqY0ENsRfHkijE%2BHVA%2FYruGYPZ7wisI8npNLk14TwJm4DCVHsIfjvxVPhINfAJKM%3D">Information Technology Manager</a></td>
+<td data-title="Location" class="td_location"><span>Port of Spain</span></td>
+<td data-title="Job Type" class="td_jobtype"><span></span></td>
+</tr></tbody>
+</table>`;
