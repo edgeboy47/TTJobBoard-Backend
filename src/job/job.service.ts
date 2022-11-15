@@ -64,6 +64,7 @@ export class JobService {
     await this.scrapeJobsTT();
     await this.scrapeTrinidadJobs();
     await this.scrapeCRS();
+    await this.scrapeEveAnderson();
 
     this.logger.log('Finished running all scrapers');
   }
@@ -314,6 +315,64 @@ export class JobService {
       this.logger.log(`Finished scraping CRS. ${newJobs} new jobs added.`);
     } catch (e) {
       this.logger.error(`Error scraping CRS: ${e}`);
+    }
+  }
+
+  async scrapeEveAnderson() {
+    const url = 'https://www.eveandersonrecruitment.com/jobs-2/';
+
+    try {
+      let newJobs = 0;
+      this.logger.log('Scraping Eve Anderson');
+      const body = await this.getMarkupWithPuppeteer(url, {
+        iframeName: 'pcrframe',
+      });
+
+      const $ = cheerio.load(body);
+      const jobs = $('table.table-condensed>tbody>tr');
+
+      this.logger.log(`${jobs.length} jobs found`);
+      for (const el of jobs.toArray().reverse()) {
+        const job = $(el);
+
+        const title = job.find('.td_jobtitle>a').text().trim();
+        const company = '';
+        const description = '';
+        const jobURL = job.find('.td_jobtitle>a').attr('href');
+        const location = job.find('.td_location>span').text().trim();
+
+        // Check if job listing already exists
+        // TODO find another way to check for unique jobs, since EA does not show company, same for CRS
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: `https://host.pcrecruiter.net${jobURL}`,
+              location,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(
+        `Finished scraping Eve Anderson. ${newJobs} new jobs added.`,
+      );
+    } catch (e) {
+      this.logger.error(`Error scraping Eve Anderson: ${e}`);
     }
   }
 }
