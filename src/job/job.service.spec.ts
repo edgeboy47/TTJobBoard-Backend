@@ -3,6 +3,7 @@ import { JobService } from './job.service';
 import {
   caribbeanJobsMarkup,
   crsMarkup,
+  eveAndersonMarkup,
   jobsTTMarkup,
   trinidadJobsMarkup,
 } from './fixtures';
@@ -41,6 +42,8 @@ describe('JobService', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('should get markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
       await service.scrapeCaribbeanJobs();
 
       expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);
@@ -121,6 +124,8 @@ describe('JobService', () => {
     });
 
     it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
       await service.scrapeJobsTT();
 
       expect(global.fetch).toBeCalledTimes(1);
@@ -197,6 +202,8 @@ describe('JobService', () => {
     });
 
     it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
       await service.scrapeTrinidadJobs();
 
       expect(global.fetch).toBeCalledTimes(1);
@@ -266,6 +273,8 @@ describe('JobService', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('should get markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      
       await service.scrapeCRS();
 
       expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);
@@ -308,7 +317,85 @@ describe('JobService', () => {
           company: '',
           description: '',
           url: expect.stringMatching(
-            /https:\/\/host.pcrecruiter.net\/pcrbin\/jobboard.aspx\?action=detail&recordid=[0-9]+&pcr-id=.+$/,
+            /https:\/\/host.pcrecruiter.net\/pcrbin\/jobboard.aspx\?action=detail&recordid=161318495112243&pcr-id=.+$/,
+          ),
+          location: 'Port of Spain',
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping Eve Anderson', () => {
+    beforeAll(() => {
+      jest
+        .spyOn(service, 'getMarkupWithPuppeteer')
+        .mockResolvedValue(eveAndersonMarkup);
+    });
+
+    afterEach(() => jest.clearAllMocks());
+
+    it('should get markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
+      await service.scrapeEveAnderson();
+
+      expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);
+      expect(
+        service.getMarkupWithPuppeteer(expect.any(String), {
+          selector: expect.any(String),
+        }),
+      ).resolves.toBe(eveAndersonMarkup);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEveAnderson();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEveAnderson();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEveAnderson();
+
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Accountant',
+          company: '',
+          description: '',
+          url: expect.stringMatching(
+            /https:\/\/host.pcrecruiter.net\/pcrbin\/jobboard.aspx\?action=detail&recordid=181695420516944&pcr-id=.+$/,
           ),
           location: 'Port of Spain',
           sector: 'PRIVATE',

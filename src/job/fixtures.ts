@@ -121,3 +121,20 @@ export const crsMarkup = `<table class="table-condensed cf tp_rowitem" style="wi
 <td data-title="Job Type" class="td_jobtype"><span></span></td>
 </tr></tbody>
 </table>`;
+
+export const eveAndersonMarkup = `<table class="table-condensed cf tp_rowitem" style="width: 100%;">
+<thead class="cf">
+<tr>
+<th class="th_positionlogo">Logo</th>
+<th class="th_jobtitle">Job Title</th>
+<th class="th_location">Location</th>
+<th class="th_jobtype">Job Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td data-title="Position Logo" class="td_positionlogo"><span><span class="positionlogo" style="background-image:url(/pcrbin/logo.exe?action=VIEW&amp;image=181695420516944&amp;dbid=Eve%20Anderson%20Recruitment.eveandersonrecruitment&amp;defaultpic=genericposition&amp;cache=);"></span></span></td>
+<td data-title="Job Title" class="td_jobtitle"><a href="/pcrbin/jobboard.aspx?action=detail&amp;recordid=181695420516944&amp;pcr-id=fGV2ZWFuZGVyc29ucmVjcnVpdG1lbnQuJVg3EBfpAmyqEnS%2Fq0RH1iJeiLgaZ2QKJ6unDqeRIXrfeSt5R6T5d2t24k8djxYfr%2FW69CrFokyBUx8Ktn6NGjMaKtO0ORIR86h5pqVWcm1b6JpvXkn%2Fj2rPeh%2BmP8K%2F9g%3D%3D">Accountant</a></td>
+<td data-title="Location" class="td_location"><span>Port of Spain</span></td>
+<td data-title="Job Type" class="td_jobtype"><span>Permanent</span></td>
+</tr></tbody>
+</table>`;
