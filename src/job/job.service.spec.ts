@@ -274,7 +274,7 @@ describe('JobService', () => {
 
     it('should get markup correctly', async () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
-      
+
       await service.scrapeCRS();
 
       expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1);

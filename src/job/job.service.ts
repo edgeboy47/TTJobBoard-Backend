@@ -65,6 +65,7 @@ export class JobService {
     await this.scrapeTrinidadJobs();
     await this.scrapeCRS();
     await this.scrapeEveAnderson();
+    await this.scrapeWebFx();
 
     this.logger.log('Finished running all scrapers');
   }
@@ -373,6 +374,60 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping Eve Anderson: ${e}`);
+    }
+  }
+
+  async scrapeWebFx() {
+    const url = 'https://webfx.co.tt/careers/';
+    try {
+      let newJobs = 0;
+      this.logger.log('Scraping WebFx');
+
+      const res = await fetch(url);
+      const body = await res.text();
+
+      const $ = cheerio.load(body);
+      const jobs = $('.awsm-job-listing-item');
+
+      this.logger.log(`${jobs.length} jobs found`);
+
+      for (const el of jobs) {
+        const job = $(el);
+        const title = job.find('.awsm-job-post-title').text().trim();
+        const company = 'WebFx';
+        const description = '';
+        const location = 'Maraval';
+        const jobURL = job.find('.awsm-job-item').attr('href');
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: jobURL,
+              location,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(`Finished scraping WebFx. ${newJobs} new jobs added`);
+    } catch (e) {
+      this.logger.error(`Error scraping WebFx: ${e}`);
     }
   }
 }
