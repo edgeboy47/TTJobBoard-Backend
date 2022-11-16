@@ -138,3 +138,15 @@ export const eveAndersonMarkup = `<table class="table-condensed cf tp_rowitem" s
 <td data-title="Job Type" class="td_jobtype"><span>Permanent</span></td>
 </tr></tbody>
 </table>`;
+
+export const webfxMarkup = `<div class="awsm-job-listing-item awsm-grid-item" id="awsm-grid-item-17354">		<a href="https://webfx.co.tt/career/digital-content-producer/" class="awsm-job-item">			<div class="awsm-grid-left-col">
+				
+				
+<h2 class="awsm-job-post-title">
+    Digital Content Producer				</h2>
+
+            </div>
+
+<div class="awsm-grid-right-col">
+<div class="awsm-job-more-container"><span class="awsm-job-more">Apply Now <span></span></span></div>			</div>
+</a>	</div>`;
