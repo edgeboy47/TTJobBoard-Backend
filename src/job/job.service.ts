@@ -59,18 +59,23 @@ export class JobService {
   @Cron(CronExpression.EVERY_30_MINUTES)
   async runScrapers() {
     this.logger.log('Running all scrapers');
+    let total = 0;
 
-    await this.scrapeCaribbeanJobs();
-    await this.scrapeJobsTT();
-    await this.scrapeTrinidadJobs();
-    await this.scrapeCRS();
-    await this.scrapeEveAnderson();
-    await this.scrapeWebFx();
+    total += await this.scrapeCaribbeanJobs();
+    total += await this.scrapeJobsTT();
+    total += await this.scrapeTrinidadJobs();
+    total += await this.scrapeCRS();
+    total += await this.scrapeEveAnderson();
+    total += await this.scrapeWebFx();
 
-    this.logger.log('Finished running all scrapers');
+    this.logger.log(
+      `Finished running all scrapers. ${total} total new job${
+        total === 1 ? '' : 's'
+      } added`,
+    );
   }
 
-  async scrapeCaribbeanJobs() {
+  async scrapeCaribbeanJobs(): Promise<number> {
     const baseURL = 'https://www.caribbeanjobs.com';
     const url =
       'https://www.caribbeanjobs.com/ShowResults.aspx?Keywords=&autosuggestEndpoint=%2fautosuggest&Location=124&Category=&Recruiter=Company%2cAgency&btnSubmit=Search&PerPage=100';
@@ -131,21 +136,24 @@ export class JobService {
       this.logger.log(
         `Finished scraping Caribbean Jobs. ${newJobs} new jobs added.`,
       );
+
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping Caribbean Jobs: ${e}`);
+      return newJobs;
     }
   }
 
-  async scrapeJobsTT() {
+  async scrapeJobsTT(): Promise<number> {
     const url =
       'https://jobstt.com/search-results-jobs/?searchId=1668009993.4696&action=search&page=1&listings_per_page=100&view=list';
+    let newJobs = 0;
 
     try {
       this.logger.log('Scraping JobsTT');
 
       const res = await fetch(url);
       const body = await res.text();
-      let newJobs = 0;
 
       const $ = cheerio.load(body);
 
@@ -186,17 +194,19 @@ export class JobService {
       }
 
       this.logger.log(`Finished scraping JobsTT. ${newJobs} new jobs added.`);
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping JobsTT: ${e}`);
+      return newJobs;
     }
   }
 
-  async scrapeTrinidadJobs() {
+  async scrapeTrinidadJobs(): Promise<number> {
     const url =
       'https://www.trinidadjob.com/jobs/?keyword=&iwj_location=&iwj_cat=&iwj_type=&iwj_skill=&iwj_level=&iwj_salary=';
+    let newJobs = 0;
 
     try {
-      let newJobs = 0;
       this.logger.log('Scraping Trinidad Jobs');
 
       const res = await fetch(url);
@@ -258,16 +268,18 @@ export class JobService {
       this.logger.log(
         `Finished scraping Trinidad Jobs. ${newJobs} new jobs added.`,
       );
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping Trinidad Jobs: ${e}`);
+      return newJobs;
     }
   }
 
-  async scrapeCRS() {
+  async scrapeCRS(): Promise<number> {
     const url = 'https://www.crsrecruitment.co.tt/jobs/';
+    let newJobs = 0;
 
     try {
-      let newJobs = 0;
       this.logger.log('Scraping CRS');
       const body = await this.getMarkupWithPuppeteer(url, {
         iframeName: 'pcrframe',
@@ -314,16 +326,18 @@ export class JobService {
       }
 
       this.logger.log(`Finished scraping CRS. ${newJobs} new jobs added.`);
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping CRS: ${e}`);
+      return newJobs;
     }
   }
 
-  async scrapeEveAnderson() {
+  async scrapeEveAnderson(): Promise<number> {
     const url = 'https://www.eveandersonrecruitment.com/jobs-2/';
+    let newJobs = 0;
 
     try {
-      let newJobs = 0;
       this.logger.log('Scraping Eve Anderson');
       const body = await this.getMarkupWithPuppeteer(url, {
         iframeName: 'pcrframe',
@@ -372,15 +386,18 @@ export class JobService {
       this.logger.log(
         `Finished scraping Eve Anderson. ${newJobs} new jobs added.`,
       );
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping Eve Anderson: ${e}`);
+      return newJobs;
     }
   }
 
-  async scrapeWebFx() {
+  async scrapeWebFx(): Promise<number> {
     const url = 'https://webfx.co.tt/careers/';
+    let newJobs = 0;
+
     try {
-      let newJobs = 0;
       this.logger.log('Scraping WebFx');
 
       const res = await fetch(url);
@@ -426,8 +443,10 @@ export class JobService {
       }
 
       this.logger.log(`Finished scraping WebFx. ${newJobs} new jobs added`);
+      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping WebFx: ${e}`);
+      return newJobs;
     }
   }
 }
