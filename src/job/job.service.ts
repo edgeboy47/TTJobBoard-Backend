@@ -3,18 +3,50 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
+import { Job } from '@prisma/client';
 
+export type JobApiResponse = {
+  data: Job[];
+  meta: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
+};
 @Injectable()
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(JobService.name);
 
-  async getAllJobs() {
-    return this.prisma.job.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  // TODO: add pagination
+  // TODO: add page metadata {currentPage, totalPages, totalItems, hasNext}
+  async getAllJobs(perPage?: number, page?: number): Promise<JobApiResponse> {
+    try {
+      const limit = perPage || 15;
+      const offset = limit * (page - 1) || 0;
+
+      const data = await this.prisma.job.findMany({
+        skip: offset,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      const totalItems = await this.prisma.job.count();
+      const totalPages = Math.ceil(totalItems / limit);
+
+      return {
+        data,
+        meta: {
+          currentPage: page || 1,
+          totalItems,
+          totalPages,
+        },
+      };
+    } catch (e) {
+      this.logger.error(`Error getting all jobs: ${e}`);
+    }
   }
 
   // Gets HTML for dynamic pages
@@ -84,6 +116,8 @@ export class JobService {
     try {
       this.logger.log('Scraping Caribbean Jobs');
 
+      // TODO it might be possible to get markup using fetch if Referer header is set to homepage url or to "none"
+      // TODO: opening links for this site in development gives a 403 error because Referer header is set to localhost
       // Retrieve markup from CaribbeanJobs website
       const body = await this.getMarkupWithPuppeteer(url, {
         selector: '.two-thirds',
@@ -134,7 +168,9 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Caribbean Jobs. ${newJobs} new jobs added.`,
+        `Finished scraping Caribbean Jobs. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added.`,
       );
 
       return newJobs;
@@ -193,7 +229,11 @@ export class JobService {
         }
       }
 
-      this.logger.log(`Finished scraping JobsTT. ${newJobs} new jobs added.`);
+      this.logger.log(
+        `Finished scraping JobsTT. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added.`,
+      );
       return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping JobsTT: ${e}`);
@@ -266,7 +306,9 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Trinidad Jobs. ${newJobs} new jobs added.`,
+        `Finished scraping Trinidad Jobs. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added.`,
       );
       return newJobs;
     } catch (e) {
@@ -325,7 +367,11 @@ export class JobService {
         }
       }
 
-      this.logger.log(`Finished scraping CRS. ${newJobs} new jobs added.`);
+      this.logger.log(
+        `Finished scraping CRS. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added.`,
+      );
       return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping CRS: ${e}`);
@@ -384,7 +430,9 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Eve Anderson. ${newJobs} new jobs added.`,
+        `Finished scraping Eve Anderson. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added.`,
       );
       return newJobs;
     } catch (e) {
@@ -442,7 +490,11 @@ export class JobService {
         }
       }
 
-      this.logger.log(`Finished scraping WebFx. ${newJobs} new jobs added`);
+      this.logger.log(
+        `Finished scraping WebFx. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added`,
+      );
       return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping WebFx: ${e}`);
