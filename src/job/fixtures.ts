@@ -150,3 +150,71 @@ export const webfxMarkup = `<div class="awsm-job-listing-item awsm-grid-item" id
 <div class="awsm-grid-right-col">
 <div class="awsm-job-more-container"><span class="awsm-job-more">Apply Now <span></span></span></div>			</div>
 </a>	</div>`;
+
+export const employttMarkup = `<div class="job-section section pt-40 pt-lg-40 pt-md-35 pt-sm-15 pt-xs-5 pb-80 pb-lg-60 pb-md-40 pb-sm-20 pb-xs-10">
+<div class="container-sm">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="section-title-two mb-45 mb-xs-30">
+                <h3 class="title">Find your next job in a few clicks</h3>
+                
+            </div>
+        </div>
+    </div>
+    <div class="row">      
+                <div class="col-lg-12 pl-xs-20 pr-xs-20">
+                    <!-- Single Job Start  -->
+                    <div class="single-job style-two">
+                        <div class="info-top">
+                            <div class="job-image">
+                                <a href="https://employtt.gov.tt/jobs/view/273">
+                                    <img src="https://employtt.gov.tt/img/blank-img.png" alt="logo">
+                                </a>
+                            </div>
+                            <div class="job-info">
+                                <div class="job-info-inner">
+                                    <div class="job-info-top">
+                                        <div class="saveJob for-listing">
+                                            
+                                            
+                                            <a href="https://employtt.gov.tt/jobs/list/employmentStatus-cbx-fulltime" class="job-type-label ml-20 mr-20">full-time</a>
+
+                                                                                                
+                                        </div>
+                                        <div class="title-name">
+                                            <h3 class="job-title">
+                                                <a href="https://employtt.gov.tt/jobs/view/273" class="decode">Records Management Specialist</a>
+                                            </h3>
+                                            <div class="employer-name">
+                                                <a href="https://employtt.gov.tt/employers/view/12" class="decode">Ministry of Sport and Community Development</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="job-meta-two">
+                                        <div class="field-salary_from">
+                                            <i class="gj-icon gj-icon-money"></i>
+                                            salary Concealed
+                                        </div>
+                                        <div class="field-map"><a href="https://employtt.gov.tt/jobs/list/city-cbx-PortofSpain"><i class="lnr lnr-map-marker"></i>Port of Spain</a></div>
+                                        <div class="field-datetime"><i class="lnr lnr-clock"></i>published 2 days ago</div>
+                                        <div class="field-datetime"><i class="lnr lnr-hourglass"></i>expires 1 week from now</div>
+                                    </div>
+                                    <div class="job-skill-tag">
+                                        <a href="https://employtt.gov.tt/jobs/list/category-cbx-17" class="decode">Management</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Single Job End -->
+                </div>                     
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="all-job">
+                <p>Top jobs are waiting for you. <a href="https://employtt.gov.tt/jobs/list">Browse all jobs <i class="fas fa-chevron-circle-right"></i></a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>`;

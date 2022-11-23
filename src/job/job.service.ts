@@ -513,7 +513,7 @@ export class JobService {
 
       const $ = cheerio.load(body);
       const jobs = $(
-        '#main-wrapper > div.job-section.section > div > div:nth-child(2) > .col-lg-12',
+        'div.job-section.section > div > div:nth-child(2) > .col-lg-12',
       );
 
       this.logger.log(`${jobs.length} jobs found`);

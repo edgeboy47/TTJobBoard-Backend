@@ -3,6 +3,7 @@ import { JobService } from './job.service';
 import {
   caribbeanJobsMarkup,
   crsMarkup,
+  employttMarkup,
   eveAndersonMarkup,
   jobsTTMarkup,
   trinidadJobsMarkup,
@@ -438,7 +439,7 @@ describe('JobService', () => {
     it('should call fetch', async () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
 
-      await service.scrapeTrinidadJobs();
+      await service.scrapeWebFx();
 
       expect(global.fetch).toBeCalledTimes(1);
     });
@@ -477,6 +478,83 @@ describe('JobService', () => {
           url: 'https://webfx.co.tt/career/digital-content-producer/',
           location: 'Maraval',
           sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping EmployTT', () => {
+    beforeAll(() => {
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            text: () => Promise.resolve<string>(employttMarkup),
+          }),
+        ) as jest.Mock,
+      );
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
+      await service.scrapeEmployTT();
+
+      expect(global.fetch).toBeCalledTimes(1);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEmployTT();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEmployTT();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeEmployTT();
+
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Records Management Specialist',
+          company: 'Ministry of Sport and Community Development',
+          description: '',
+          url: 'https://employtt.gov.tt/jobs/view/273',
+          location: 'Port of Spain',
+          sector: 'PUBLIC',
         },
       });
     });
