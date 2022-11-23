@@ -18,8 +18,6 @@ export class JobService {
   constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(JobService.name);
 
-  // TODO: add pagination
-  // TODO: add page metadata {currentPage, totalPages, totalItems, hasNext}
   async getAllJobs(perPage?: number, page?: number): Promise<JobApiResponse> {
     try {
       const limit = perPage || 15;
@@ -99,6 +97,7 @@ export class JobService {
     total += await this.scrapeCRS();
     total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx();
+    total += await this.scrapeEmployTT();
 
     this.logger.log(
       `Finished running all scrapers. ${total} total new job${
@@ -500,5 +499,71 @@ export class JobService {
       this.logger.error(`Error scraping WebFx: ${e}`);
       return newJobs;
     }
+  }
+
+  async scrapeEmployTT(): Promise<number> {
+    const url = 'https://employtt.gov.tt/';
+    let newJobs = 0;
+
+    try {
+      this.logger.log('Scraping EmployTT');
+
+      const res = await fetch(url);
+      const body = await res.text();
+
+      const $ = cheerio.load(body);
+      const jobs = $(
+        '#main-wrapper > div.job-section.section > div > div:nth-child(2) > .col-lg-12',
+      );
+
+      this.logger.log(`${jobs.length} jobs found`);
+
+      for (const el of jobs) {
+        const job = $(el);
+        const title = job.find('h3.job-title').text().trim();
+        const jobURL = job.find('h3.job-title > a').attr('href');
+        const location = job
+          .find('.job-meta-two > .field-map > a')
+          .text()
+          .trim();
+        const company = job.find('.employer-name').text().trim();
+        const description = '';
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: jobURL,
+              location,
+              sector: 'PUBLIC',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(
+        `Finished scraping EmployTT. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added`,
+      );
+    } catch (e) {
+      this.logger.error(`Error scraping EmployTT: ${e}`);
+    }
+
+    return newJobs;
   }
 }
