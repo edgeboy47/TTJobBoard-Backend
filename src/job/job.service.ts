@@ -98,6 +98,7 @@ export class JobService {
     total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx();
     total += await this.scrapeEmployTT();
+    total += await this.scrapeMassyFinance();
 
     this.logger.log(
       `Finished running all scrapers. ${total} total new job${
@@ -562,6 +563,70 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping EmployTT: ${e}`);
+    }
+
+    return newJobs;
+  }
+
+  async scrapeMassyFinance(): Promise<number> {
+    const url = 'https://massyfinancegfcltd.bamboohr.com/careers/list';
+
+    let newJobs = 0;
+
+    try {
+      this.logger.log('Scraping Massy Finance');
+
+      const res = await fetch(url, {
+        headers: {
+          Referer: 'https://massyfinancegfcltd.bamboohr.com/careers',
+        },
+      });
+
+      const body = await res.json();
+
+      this.logger.log(`${body.meta.totalCount} jobs found.`);
+      const jobs = body.result;
+
+      for (const job of jobs) {
+        const title = job.jobOpeningName;
+        const description = '';
+        const jobURL = `https://massyfinancegfcltd.bamboohr.com/careers/${job.id}`;
+        const location = job.location.city;
+        const company = 'Massy Finance GFC Ltd';
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: jobURL,
+              location,
+              sector: 'PUBLIC',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(
+        `Finished scraping Massy Finance. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added`,
+      );
+    } catch (e) {
+      this.logger.error(`Error scraping Massy Finance: ${e}`);
     }
 
     return newJobs;
