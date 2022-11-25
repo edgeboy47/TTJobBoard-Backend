@@ -612,7 +612,7 @@ export class JobService {
               description,
               url: jobURL,
               location,
-              sector: 'PUBLIC',
+              sector: 'PRIVATE',
             },
           });
 

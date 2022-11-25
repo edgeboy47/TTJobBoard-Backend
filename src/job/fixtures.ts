@@ -218,3 +218,23 @@ export const employttMarkup = `<div class="job-section section pt-40 pt-lg-40 pt
     </div>
 </div>
 </div>`;
+
+export const massyFinanceMarkup = {
+  meta: {
+    totalCount: 1,
+  },
+  result: [
+    {
+      id: '24',
+      jobOpeningName: 'Business Development Officer',
+      departmentId: '18568',
+      departmentLabel: 'Commercial Lending',
+      employmentStatusLabel: 'Full-Time',
+      location: {
+        city: 'Port of Spain',
+        state: ' N/A',
+      },
+      isRemote: false,
+    },
+  ],
+};
