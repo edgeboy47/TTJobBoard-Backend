@@ -238,3 +238,130 @@ export const massyFinanceMarkup = {
     },
   ],
 };
+
+export const fcbMarkup = `<table role="grid" id="searchresults" class="searchResults full table table-striped table-hover" cellpadding="0" cellspacing="0" aria-labelledby="caption">
+<caption id="caption" role="alert" aria-live="polite" style="font-size:0px;">
+Search results for
+     "".
+    Page 1 of 1, Results 1 to 1
+</caption>
+<thead>
+        <tr id="search-results-header">
+                        <th id="hdrTitle" aria-sort="none" scope="col" width="35%">
+                            <span class="jobTitle">
+                                <a class="jobTitle sort" href="/search/?q=&amp;sortColumn=sort_title&amp;sortDirection=desc#hdrTitle">Title
+                                </a>
+                            </span>
+                        </th>
+                        <th id="hdrLocation" aria-sort="none" scope="col" width="25%" class="hidden-phone">
+                            <span class="jobLocation">
+                                <a class="jobLocation sort" href="/search/?q=&amp;sortColumn=sort_location&amp;sortDirection=desc#hdrLocation">Location
+                                </a>
+                            </span>
+                        </th>
+                        <th id="hdrDepartment" aria-sort="none" scope="col" width="25%" class="hidden-phone">
+                            <span class="jobDepartment">
+                                <a href="/search/?q=&amp;sortColumn=sort_department&amp;sortDirection=desc#hdrDepartment">Job Area
+                                </a>
+                            </span>
+                        </th>
+                        <th id="hdrDate" aria-sort="descending" scope="col" width="15%" class="hidden-phone">
+                            <span class="jobDate">
+                                <a href="/search/?q=&amp;sortColumn=referencedate&amp;sortDirection=asc#hdrDate">Date <img src="/platform/images/shared/downtri.png" border="0" alt="Sort descending">
+                                </a>
+                            </span>
+                        </th>
+                <td class="hidden-phone"></td>
+        </tr>
+        <tr id="search-results-filter" class="hidden-phone">
+                        <td id="filter-title">
+                            <label class="s508-hide" for="title">Title</label><input id="title" data-column="title" class="filter-input" style="width: 100%;" title="Filter: Title" type="text" name="title" maxlength="50" placeholder="Title">
+                        </td>
+                        <td id="filter-location" class="hidden-phone">
+                            <label class="s508-hide" for="location">Location</label><input id="location" data-column="location" class="filter-input" style="width: 100%;" title="Filter: Location" type="text" name="location" maxlength="50" placeholder="Location">
+                        </td>
+                        <td id="filter-department">
+                            <label class="s508-hide" for="department">Job Area</label><input id="department" data-column="department" class="filter-input" style="width: 100%;" title="Filter: Job Area" type="text" name="department" maxlength="50" placeholder="Job Area">
+                        </td>
+                        <td id="filter-date" nowrap="nowrap">
+                            <label class="s508-hide" for="date">Date (dd/MM/yy)</label><input id="date" data-column="referencedate" class="filter-input" style="width: 100%;" title="Filter: Date" type="text" name="date" placeholder="Date (dd/MM/yy)">
+                        </td>
+
+            <td id="filter-submit">
+                <form id="searchfilter" method="get" action="/search/" name="searchfilter">
+                    <input type="submit" id="searchfilter-submit" value="Filter" class="btn btn-default">
+                    <input id="q" type="hidden" name="q">
+                    <input id="q2" type="hidden" name="q2">
+                    <input id="alertId" type="hidden" name="alertId">
+
+                    <a id="reset" href="/search/?q=">Reset</a>
+                </form>
+
+                <script type="text/javascript">
+                    //<![CDATA[
+                        $searchfilter = $('#searchfilter');
+                        $(function() {
+                            $('.filter-input').keypress(function(e){
+                                if (e.keyCode == 13) {
+                                    copyInputFieldsToForm('.filter-input');
+                                    $searchfilter.trigger('submit');
+                                }
+                            });
+                        });
+                        $searchfilter.submit(function(e){
+                            copyInputFieldsToForm('.filter-input');
+                        });
+                        function copyInputFieldsToForm(selector) {
+                            $(selector).each(function(index,item){
+                                $item = $(item);
+                                var $input = $("<input>").attr("type", "hidden").attr("name", $item.attr('name') ).val( $item.val() );
+                                $item.attr('disabled','disabled').removeAttr('id').removeAttr('name');
+                                $searchfilter.append( $input );
+                            });
+                        }
+                    //]]>
+                </script>
+            </td>
+        </tr>
+</thead>
+<tbody>
+
+        <tr class="data-row">
+                            <td class="colTitle" headers="hdrTitle">
+                                <span class="jobTitle hidden-phone">
+                                    <a href="/job/Aranguez-PROGRAMMER-ANALYST-III-SJL/871087101/" class="jobTitle-link">PROGRAMMER ANALYST III</a>
+                                </span>
+                                <div class="jobdetail-phone visible-phone">
+                                                <span class="jobTitle visible-phone">
+                                                    <a class="jobTitle-link" href="/job/Aranguez-PROGRAMMER-ANALYST-III-SJL/871087101/">PROGRAMMER ANALYST III</a>
+                                                </span>
+                                                <span class="jobLocation visible-phone">
+
+<span class="jobLocation">
+Aranguez, SJL, TT
+
+</span></span>
+                                                <span class="jobFacility visible-phone"></span>
+                                                <span class="jobDate visible-phone">17-Nov-2022
+                                                </span>
+                                </div>
+                            </td>
+                        <td class="colLocation hidden-phone" headers="hdrLocation">
+
+<span class="jobLocation">
+Aranguez, SJL, TT
+
+</span>
+                        </td>
+                        <td class="colDepartment hidden-phone" headers="hdrDepartment">
+                            <span class="jobDepartment"></span>
+                        </td>
+                        <td class="colDate hidden-phone" nowrap="nowrap" headers="hdrDate">
+                            <span class="jobDate">17-Nov-2022
+                            </span>
+                        </td>
+                <td class="hidden-phone"></td>
+        </tr>
+</tbody>
+
+</table>`;

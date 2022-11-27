@@ -5,6 +5,7 @@ import {
   crsMarkup,
   employttMarkup,
   eveAndersonMarkup,
+  fcbMarkup,
   jobsTTMarkup,
   massyFinanceMarkup,
   trinidadJobsMarkup,
@@ -632,6 +633,83 @@ describe('JobService', () => {
           description: '',
           url: 'https://massyfinancegfcltd.bamboohr.com/careers/24',
           location: 'Port of Spain',
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping FCB', () => {
+    beforeAll(() => {
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            text: () => Promise.resolve(fcbMarkup),
+          }),
+        ) as jest.Mock,
+      );
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
+      await service.scrapeFCB();
+
+      expect(global.fetch).toBeCalledTimes(1);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeFCB();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeFCB();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeFCB();
+
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'PROGRAMMER ANALYST III',
+          company: 'First Citizens Bank',
+          description: '',
+          url: 'https://careers.firstcitizenstt.com/job/Aranguez-PROGRAMMER-ANALYST-III-SJL/871087101/',
+          location: 'Aranguez, SJL, TT',
           sector: 'PRIVATE',
         },
       });

@@ -696,7 +696,7 @@ export class JobService {
               title,
               company,
               description,
-              url: `https://careers.firstcitizenstt.com/${jobURL}`,
+              url: `https://careers.firstcitizenstt.com${jobURL}`,
               location,
               sector: 'PRIVATE',
             },
