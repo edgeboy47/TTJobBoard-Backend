@@ -99,6 +99,7 @@ export class JobService {
     total += await this.scrapeWebFx();
     total += await this.scrapeEmployTT();
     total += await this.scrapeMassyFinance();
+    total += await this.scrapeFCB();
 
     this.logger.log(
       `Finished running all scrapers. ${total} total new job${
@@ -127,7 +128,9 @@ export class JobService {
       const $ = cheerio.load(body);
       const jobs = $('.job-result>.module-content');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs.toArray().reverse()) {
         const job = $(el);
@@ -195,7 +198,9 @@ export class JobService {
 
       const jobs = $('.listone');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs.toArray().reverse()) {
         const job = $(el);
@@ -256,7 +261,9 @@ export class JobService {
 
       const jobs = $('.job-item');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs.toArray().reverse()) {
         const job = $(el);
@@ -330,7 +337,9 @@ export class JobService {
       const $ = cheerio.load(body);
       const jobs = $('table.table-condensed>tbody>tr');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs.toArray().reverse()) {
         const job = $(el);
@@ -392,7 +401,9 @@ export class JobService {
       const $ = cheerio.load(body);
       const jobs = $('table.table-condensed>tbody>tr');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
       for (const el of jobs.toArray().reverse()) {
         const job = $(el);
 
@@ -454,7 +465,9 @@ export class JobService {
       const $ = cheerio.load(body);
       const jobs = $('.awsm-job-listing-item');
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs) {
         const job = $(el);
@@ -517,7 +530,9 @@ export class JobService {
         'div.job-section.section > div > div:nth-child(2) > .col-lg-12',
       );
 
-      this.logger.log(`${jobs.length} jobs found`);
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`,
+      );
 
       for (const el of jobs) {
         const job = $(el);
@@ -584,7 +599,11 @@ export class JobService {
 
       const body = await res.json();
 
-      this.logger.log(`${body.meta.totalCount} jobs found.`);
+      this.logger.log(
+        `${body.meta.totalCount} job${
+          body.meta.totalCount === 1 ? '' : 's'
+        } found.`,
+      );
       const jobs = body.result;
 
       for (const job of jobs) {
@@ -627,6 +646,73 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping Massy Finance: ${e}`);
+    }
+
+    return newJobs;
+  }
+
+  async scrapeFCB(): Promise<number> {
+    const url =
+      'https://careers.firstcitizenstt.com/search/?createNewAlert=false&q=&optionsFacetsDD_country=TT';
+    let newJobs = 0;
+
+    try {
+      this.logger.log('Scraping FCB');
+
+      const res = await fetch(url);
+      const body = await res.text();
+
+      const $ = cheerio.load(body);
+      const jobs = $('table#searchresults > tbody > tr.data-row');
+
+      this.logger.log(
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found.`,
+      );
+
+      for (const el of jobs) {
+        const job = $(el);
+        const title = job.find('.hidden-phone > .jobTitle-link').text().trim();
+        const jobURL = job.find('.hidden-phone > .jobTitle-link').attr('href');
+        const description = '';
+        const company = 'First Citizens Bank';
+        const location = job
+          .find('.hidden-phone > span.jobLocation')
+          .text()
+          .trim();
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: `https://careers.firstcitizenstt.com/${jobURL}`,
+              location,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(
+        `Finished scraping FCB. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added`,
+      );
+    } catch (e) {
+      this.logger.error(`Error scraping FCB: ${e}`);
     }
 
     return newJobs;
