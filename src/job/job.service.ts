@@ -100,6 +100,7 @@ export class JobService {
     total += await this.scrapeEmployTT();
     total += await this.scrapeMassyFinance();
     total += await this.scrapeFCB();
+    total += await this.scrapeRBC();
 
     this.logger.log(
       `Finished running all scrapers. ${total} total new job${
@@ -713,6 +714,107 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping FCB: ${e}`);
+    }
+
+    return newJobs;
+  }
+
+  async scrapeRBC(): Promise<number> {
+    const url = 'https://jobs.rbc.com/widgets';
+    let newJobs = 0;
+
+    try {
+      this.logger.log('Scraping RBC');
+
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        method: 'post',
+        body: JSON.stringify({
+          lang: 'en_ca',
+          deviceType: 'desktop',
+          country: 'ca',
+          pageName: 'search-results',
+          ddoKey: 'refineSearch',
+          sortBy: '',
+          subsearch: '',
+          from: 0,
+          jobs: true,
+          counts: true,
+          all_fields: [
+            'category',
+            'subCategory',
+            'platform',
+            'careerLevel',
+            'type',
+            'jobType',
+            'country',
+            'state',
+            'city',
+          ],
+          size: 10,
+          clearAll: false,
+          jdsource: 'facets',
+          isSliderEnable: false,
+          pageId: 'page35',
+          siteType: 'external',
+          keywords: '',
+          global: true,
+          selected_fields: {
+            country: ['Trinidad and Tobago'],
+          },
+          locationData: {},
+        }),
+      });
+
+      const body = await res.json();
+
+      const length = body.refineSearch.totalHits;
+
+      this.logger.log(`${length} job${length === 1 ? '' : 's'} found.`);
+
+      for (const job of body.refineSearch.data.jobs) {
+        const title = job.title;
+        const company = 'Royal Bank of Canada';
+        const description = job.descriptionTeaser;
+        const jobURL = `https://jobs.rbc.com/ca/en/job/${job.jobId}`;
+        const location = job.city;
+
+        // Check if job listing already exists
+        const exists = await this.prisma.job.findUnique({
+          where: {
+            title_company: {
+              title,
+              company,
+            },
+          },
+        });
+
+        if (!exists) {
+          await this.prisma.job.create({
+            data: {
+              title,
+              company,
+              description,
+              url: `https://careers.firstcitizenstt.com${jobURL}`,
+              location,
+              sector: 'PRIVATE',
+            },
+          });
+
+          ++newJobs;
+        }
+      }
+
+      this.logger.log(
+        `Finished scraping RBC. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
+        } added`,
+      );
+    } catch (e) {
+      this.logger.error(`Error scraping RBC: ${e}`);
     }
 
     return newJobs;
