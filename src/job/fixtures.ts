@@ -365,3 +365,58 @@ Aranguez, SJL, TT
 </tbody>
 
 </table>`;
+
+export const rbcMarkup = {
+  refineSearch: {
+    status: 200,
+    hits: 1,
+    totalHits: 1,
+    data: {
+      jobs: [
+        {
+          cityState: 'Port of Spain',
+          country: 'Trinidad and Tobago',
+          subCategory: 'Sales and Advisory',
+          city: 'Port of Spain',
+          latitude: '10.6593625',
+          type: 'Full time',
+          multi_location: ['Port of Spain, Trinidad and Tobago'],
+          locale: 'en_CA',
+          title: 'Account Manager',
+          jobSeqNo: 'RBCAA0088R0000039022EXTERNALENCA',
+          postedDate: '2022-11-25T00:00:00.000Z',
+          descriptionTeaser:
+            'In this role you will provide investment solutions and advice to a pool of 75+ net-worth and institutional clients of RBC Investment Management (Caribbean) Limited and act as primary contact for the client...',
+          dateCreated: '2022-11-25T17:26:49.484+0000',
+          state: '',
+          cityStateCountry: 'Port of Spain, Trinidad and Tobago',
+          visibilityType: 'External',
+          siteType: 'external',
+          longitude: '-61.5121575',
+          address: '131 Oxford Street, Port of Spain, Trinidad and Tobago',
+          isMultiCategory: true,
+          multi_category: ['Customer Service | Client Advice | Sales'],
+          reqId: 'R-0000039022',
+          jobId: 'R-0000039022',
+          badge: '',
+          jobVisibility: ['external'],
+          isMultiLocation: true,
+          applyUrl:
+            'https://rbc.wd3.myworkdayjobs.com/RBCGLOBAL1/job/Port-of-Spain-Trinidad-and-Tobago/Account-Manager_R-0000039022/apply',
+
+          location: 'Port of Spain, Trinidad and Tobago',
+          category: 'Customer Service | Client Advice | Sales',
+          externalApply: false,
+        },
+      ],
+    },
+    eid: {
+      eid: '6384e1db4a8a2e1a4eef5a73',
+      searchType: 'location',
+      query: 'Trinidad and Tobago',
+    },
+  },
+  experimentData: {
+    exp189: 'PageRank_250',
+  },
+};

@@ -8,6 +8,7 @@ import {
   fcbMarkup,
   jobsTTMarkup,
   massyFinanceMarkup,
+  rbcMarkup,
   trinidadJobsMarkup,
   webfxMarkup,
 } from './fixtures';
@@ -82,8 +83,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeCaribbeanJobs();
+      const amount = await service.scrapeCaribbeanJobs();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Insurance Sales Representatives / Advisors',
@@ -159,8 +161,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeJobsTT();
+      const amount = await service.scrapeJobsTT();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'HEAD, CORPORATE COMMUNICATIONS',
@@ -237,8 +240,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeTrinidadJobs();
+      const amount = await service.scrapeTrinidadJobs();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Security Officer',
@@ -313,8 +317,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeCRS();
+      const amount = await service.scrapeCRS();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Information Technology Manager',
@@ -391,8 +396,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeEveAnderson();
+      const amount = await service.scrapeEveAnderson();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Accountant',
@@ -470,8 +476,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeWebFx();
+      const amount = await service.scrapeWebFx();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Digital Content Producer',
@@ -547,8 +554,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeEmployTT();
+      const amount = await service.scrapeEmployTT();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Records Management Specialist',
@@ -624,8 +632,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeMassyFinance();
+      const amount = await service.scrapeMassyFinance();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'Business Development Officer',
@@ -701,8 +710,9 @@ describe('JobService', () => {
       jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
       jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
 
-      await service.scrapeFCB();
+      const amount = await service.scrapeFCB();
 
+      expect(amount).toBe(1);
       expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
         data: {
           title: 'PROGRAMMER ANALYST III',
@@ -710,6 +720,85 @@ describe('JobService', () => {
           description: '',
           url: 'https://careers.firstcitizenstt.com/job/Aranguez-PROGRAMMER-ANALYST-III-SJL/871087101/',
           location: 'Aranguez, SJL, TT',
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping RBC', () => {
+    beforeAll(() => {
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            json: () => Promise.resolve(rbcMarkup),
+          }),
+        ) as jest.Mock,
+      );
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
+      await service.scrapeRBC();
+
+      expect(global.fetch).toBeCalledTimes(1);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeRBC();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeRBC();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      const amount = await service.scrapeRBC();
+
+      expect(amount).toBe(1);
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Account Manager',
+          company: 'Royal Bank of Canada',
+          description:
+            'In this role you will provide investment solutions and advice to a pool of 75+ net-worth and institutional clients of RBC Investment Management (Caribbean) Limited and act as primary contact for the client...',
+          url: 'https://jobs.rbc.com/ca/en/job/R-0000039022',
+          location: 'Port of Spain',
           sector: 'PRIVATE',
         },
       });
