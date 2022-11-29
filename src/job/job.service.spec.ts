@@ -7,6 +7,7 @@ import {
   eveAndersonMarkup,
   fcbMarkup,
   jobsTTMarkup,
+  jobWerldMarkup,
   massyFinanceMarkup,
   rbcMarkup,
   trinidadJobsMarkup,
@@ -799,6 +800,84 @@ describe('JobService', () => {
             'In this role you will provide investment solutions and advice to a pool of 75+ net-worth and institutional clients of RBC Investment Management (Caribbean) Limited and act as primary contact for the client...',
           url: 'https://jobs.rbc.com/ca/en/job/R-0000039022',
           location: 'Port of Spain',
+          sector: 'PRIVATE',
+        },
+      });
+    });
+
+    // TODO: figure out how to mock logger
+    it.skip('should catch exceptions', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+        throw new Error();
+      });
+
+      // jest.spyOn(mockLogger, 'log');
+      // jest.spyOn(mockLogger, 'error');
+
+      await service.scrapeCaribbeanJobs();
+
+      // expect(mockLogger.log).not.toBeCalled();
+      // expect(mockLogger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Scraping JobWerld', () => {
+    beforeAll(() => {
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+          Promise.resolve({
+            json: () => Promise.resolve(jobWerldMarkup),
+          }),
+        ) as jest.Mock,
+      );
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call fetch', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+
+      await service.scrapeJobWerld();
+
+      expect(global.fetch).toBeCalledTimes(1);
+    });
+
+    it('should check if job already exists', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeJobWerld();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).not.toBeCalled();
+    });
+
+    it('should write to database if it does not already exist', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      await service.scrapeJobWerld();
+
+      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1);
+      expect(mockPrismaService.job.create).toBeCalledTimes(1);
+    });
+
+    it('should parse the given markup correctly', async () => {
+      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false);
+      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined);
+
+      const amount = await service.scrapeJobWerld();
+
+      expect(amount).toBe(1);
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+        data: {
+          title: 'Call Center Representatives',
+          company: 'Viva Management Limited',
+          description: '',
+          url: 'https://jobwerld.com/job/call-center-representatives/',
+          location: '',
           sector: 'PRIVATE',
         },
       });

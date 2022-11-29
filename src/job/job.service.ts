@@ -849,7 +849,7 @@ export class JobService {
         `${jobs.length} job${jobs.length === 1 ? '' : 's'} found.`,
       );
 
-      for (const el of jobs) {
+      for (const el of jobs.toArray().reverse()) {
         const job = $(el);
         const title = job.find('.position>h3').text().trim();
         const company = job.find('.position>.company>strong').text().trim();
