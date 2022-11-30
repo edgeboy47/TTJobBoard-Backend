@@ -86,6 +86,36 @@ export class JobService {
     }
   }
 
+  // Helper function that adds a job to the database and returns whether it was successful
+  async addJobToDatabase(job: Job): Promise<boolean> {
+    const { title, company, description, url, location, sector } = job;
+
+    // Check if job listing already exists
+    const exists = await this.prisma.job.findUnique({
+      where: {
+        title_company: {
+          title,
+          company,
+        },
+      },
+    });
+
+    if (!exists) {
+      await this.prisma.job.create({
+        data: {
+          title,
+          company,
+          description,
+          url,
+          location,
+          sector,
+        },
+      });
+    }
+
+    return !exists;
+  }
+
   @Cron(CronExpression.EVERY_30_MINUTES)
   async runScrapers() {
     this.logger.log('Running all scrapers');
@@ -146,30 +176,19 @@ export class JobService {
           .toArray()
           .join(' / ');
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: `${baseURL}${jobURL}`,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: `${baseURL}${jobURL}`,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -177,12 +196,10 @@ export class JobService {
           newJobs === 1 ? '' : 's'
         } added.`,
       );
-
-      return newJobs;
     } catch (e) {
       this.logger.error(`Error scraping Caribbean Jobs: ${e}`);
-      return newJobs;
     }
+    return newJobs;
   }
 
   async scrapeJobsTT(): Promise<number> {
@@ -211,29 +228,19 @@ export class JobService {
         const jobUrl = job.find('.list1right>h1>a').attr('href');
         const description = '';
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobUrl,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location: null,
+            url: jobUrl,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -288,30 +295,19 @@ export class JobService {
           .attr('href');
         const description = '';
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -352,30 +348,19 @@ export class JobService {
         const jobURL = job.find('.td_jobtitle>a').attr('href');
         const location = job.find('.td_location>span').text().trim();
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: `https://host.pcrecruiter.net${jobURL}`,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: `https://host.pcrecruiter.net${jobURL}`,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -415,31 +400,19 @@ export class JobService {
         const jobURL = job.find('.td_jobtitle>a').attr('href');
         const location = job.find('.td_location>span').text().trim();
 
-        // Check if job listing already exists
-        // TODO find another way to check for unique jobs, since EA does not show company, same for CRS
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: `https://host.pcrecruiter.net${jobURL}`,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: `https://host.pcrecruiter.net${jobURL}`,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -479,30 +452,19 @@ export class JobService {
         const location = 'Maraval';
         const jobURL = job.find('.awsm-job-item').attr('href');
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -547,30 +509,19 @@ export class JobService {
         const company = job.find('.employer-name').text().trim();
         const description = '';
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PUBLIC',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PUBLIC',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -615,30 +566,19 @@ export class JobService {
         const location = job.location.city;
         const company = 'Massy Finance GFC Ltd';
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -682,30 +622,19 @@ export class JobService {
           .text()
           .trim();
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: `https://careers.firstcitizenstt.com${jobURL}`,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: `https://careers.firstcitizenstt.com${jobURL}`,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -783,30 +712,19 @@ export class JobService {
         const jobURL = `https://jobs.rbc.com/ca/en/job/${job.jobId}`;
         const location = job.city;
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(
@@ -857,30 +775,19 @@ export class JobService {
         const jobURL = job.find('a').attr('href');
         const description = '';
 
-        // Check if job listing already exists
-        const exists = await this.prisma.job.findUnique({
-          where: {
-            title_company: {
-              title,
-              company,
-            },
-          },
-        });
-
-        if (!exists) {
-          await this.prisma.job.create({
-            data: {
-              title,
-              company,
-              description,
-              url: jobURL,
-              location,
-              sector: 'PRIVATE',
-            },
-          });
-
-          ++newJobs;
-        }
+        if (
+          await this.addJobToDatabase({
+            title,
+            company,
+            description,
+            location,
+            url: jobURL,
+            sector: 'PRIVATE',
+            createdAt: null,
+            expiresAt: null,
+          })
+        )
+          newJobs++;
       }
 
       this.logger.log(

@@ -170,6 +170,7 @@ describe('JobService', () => {
           title: 'HEAD, CORPORATE COMMUNICATIONS',
           company: 'THE SPORTS COMPANY OF TRINIDAD & TOBAGO LIMITED',
           description: '',
+          location: null,
           url: expect.stringMatching(
             /https:\/\/jobstt\.com\/display-job\/94563\/HEAD,-CORPORATE-COMMUNICATIONS\.html\?searchId=[0-9]+\.[0-9]+&page=1/,
           ),
