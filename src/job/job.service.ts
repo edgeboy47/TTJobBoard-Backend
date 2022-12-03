@@ -18,7 +18,12 @@ export class JobService {
   constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(JobService.name);
 
-  async getAllJobs(perPage?: number, page?: number): Promise<JobApiResponse> {
+  async getAllJobs(
+    perPage?: number,
+    page?: number,
+    title?: string,
+    company?: string,
+  ): Promise<JobApiResponse> {
     try {
       const limit = perPage || 15;
       const offset = limit * (page - 1) || 0;
@@ -29,9 +34,32 @@ export class JobService {
         orderBy: {
           createdAt: 'desc',
         },
+        where: {
+          title: {
+            contains: title || '',
+            mode: 'insensitive',
+          },
+
+          company: {
+            contains: company || '',
+            mode: 'insensitive',
+          },
+        },
       });
 
-      const totalItems = await this.prisma.job.count();
+      const totalItems = await this.prisma.job.count({
+        where: {
+          title: {
+            contains: title || '',
+            mode: 'insensitive',
+          },
+
+          company: {
+            contains: company || '',
+            mode: 'insensitive',
+          },
+        },
+      });
       const totalPages = Math.ceil(totalItems / limit);
 
       return {
