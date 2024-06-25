@@ -18,7 +18,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "preinstall": "npm install puppeteer-core",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.8",
@@ -28,6 +30,7 @@
     "@prisma/client": "^5.14.0",
     "cheerio": "^1.0.0-rc.12",
     "puppeteer": "^22.10.0",
+    "puppeteer-core": "^22.12.0",
     "reflect-metadata": "^0.2.2",
     "rimraf": "^5.0.7",
     "rxjs": "^7.8.1"
