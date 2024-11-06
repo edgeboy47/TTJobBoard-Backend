@@ -159,7 +159,6 @@ export class JobService {
     total += await this.scrapeMassyFinance();
     total += await this.scrapeFCB();
     total += await this.scrapeRBC();
-    total += await this.scrapeJobWerld();
 
     this.logger.log(
       `Finished running all scrapers. ${total} total new job${
@@ -762,69 +761,6 @@ export class JobService {
       );
     } catch (e) {
       this.logger.error(`Error scraping RBC: ${e}`);
-    }
-
-    return newJobs;
-  }
-
-  async scrapeJobWerld(): Promise<number> {
-    const url = 'https://jobwerld.com/jm-ajax/get_listings/';
-    let newJobs = 0;
-
-    try {
-      this.logger.log('Scraping JobWerld');
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        },
-        body: new URLSearchParams({
-          per_page: '100',
-          form_data:
-            'search_keywords=&search_region=10&filter_job_type%5B%5D=contract&filter_job_type%5B%5D=freelance&filter_job_type%5B%5D=full-time&filter_job_type%5B%5D=internship&filter_job_type%5B%5D=part-time&filter_job_type%5B%5D=telecommute&filter_job_type%5B%5D=temporary&filter_job_type%5B%5D=volunteer&filter_job_type%5B%5D=',
-        }),
-      });
-
-      const body = await res.json();
-
-      const html = decodeURI(body.html);
-      const $ = cheerio.load(html);
-      const jobs = $('.job_listing');
-
-      this.logger.log(
-        `${jobs.length} job${jobs.length === 1 ? '' : 's'} found.`,
-      );
-
-      for (const el of jobs.toArray().reverse()) {
-        const job = $(el);
-        const title = job.find('.position>h3').text().trim();
-        const company = job.find('.position>.company>strong').text().trim();
-        const location = '';
-        const jobURL = job.find('a').attr('href');
-        const description = '';
-
-        if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          })
-        )
-          newJobs++;
-      }
-
-      this.logger.log(
-        `Finished scraping JobWerld. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
-        } added`,
-      );
-    } catch (e) {
-      this.logger.error(`Error scraping JobWerld: ${e}`);
     }
 
     return newJobs;
