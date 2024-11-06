@@ -17,6 +17,7 @@ export type JobApiResponse = {
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
   private readonly logger = new Logger(JobService.name);
+  JOB_MONTH_LIMIT = 3
 
   async getAllJobs(
     perPage?: number,
@@ -165,6 +166,25 @@ export class JobService {
         total === 1 ? '' : 's'
       } added`,
     );
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async deleteOutdatedJobs() {
+    // Delete jobs older than 3 months
+    const dateCutOff: Date = new Date()
+    dateCutOff.setMonth(dateCutOff.getMonth() - this.JOB_MONTH_LIMIT)
+
+    this.logger.log(`Deleting jobs older than ${dateCutOff}`)
+
+    const { count: numDeleted } = await this.prisma.job.deleteMany({
+      where: {
+        createdAt: {
+          lte: dateCutOff
+        }
+      }
+    })
+
+    this.logger.log(`${numDeleted} outdated jobs deleted`)
   }
 
   async scrapeCaribbeanJobs(): Promise<number> {
