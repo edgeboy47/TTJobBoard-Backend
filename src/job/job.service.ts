@@ -145,7 +145,7 @@ export class JobService {
     return !exists;
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_HOUR)
   async runScrapers() {
     this.logger.log('Running all scrapers');
     let total = 0;
@@ -170,21 +170,25 @@ export class JobService {
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async deleteOutdatedJobs() {
-    // Delete jobs older than 3 months
-    const dateCutOff: Date = new Date()
-    dateCutOff.setMonth(dateCutOff.getMonth() - this.JOB_MONTH_LIMIT)
+    try {
+      // Delete jobs older than 3 months
+      const dateCutOff: Date = new Date()
+      dateCutOff.setMonth(dateCutOff.getMonth() - this.JOB_MONTH_LIMIT)
 
-    this.logger.log(`Deleting jobs older than ${dateCutOff}`)
+      this.logger.log(`Deleting jobs older than ${dateCutOff}`)
 
-    const { count: numDeleted } = await this.prisma.job.deleteMany({
-      where: {
-        createdAt: {
-          lte: dateCutOff
+      const { count: numDeleted } = await this.prisma.job.deleteMany({
+        where: {
+          createdAt: {
+            lte: dateCutOff
+          }
         }
-      }
-    })
+      })
 
-    this.logger.log(`${numDeleted} outdated jobs deleted`)
+      this.logger.log(`${numDeleted} outdated jobs deleted`)
+    } catch(e) {
+      this.logger.error(`Failed to delete outdated jobs: ${e}`)
+    }
   }
 
   async scrapeCaribbeanJobs(): Promise<number> {
