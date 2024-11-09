@@ -76,6 +76,11 @@ export class JobService {
     }
   }
 
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async keepAlive() {
+    await this.prisma.job.count()
+  }
+
   // Gets HTML for dynamic pages
   async getMarkupWithPuppeteer(
     url: string,
