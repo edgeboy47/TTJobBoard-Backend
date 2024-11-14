@@ -32,7 +32,7 @@ export const caribbeanJobsMarkup = `<div class="module job-result highlighted">
         <a class="show-more" href="/Insurance-Sales-Representatives-Advisors-Job-141263.aspx?p=1|application_confirmed" jobid="141263">Show More</a>
     </div>
 </div>
-</div>`;
+</div>`
 
 export const jobsTTMarkup = `<div class="listone "><div class="toggle94563">
 <div class="list1left"><a href="https://jobstt.com/company/104425/THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"><img src="https://jobstt.com/files/pictures/sportTT_20210510142043.png" alt="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED Image" title="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"></a></div>
@@ -61,7 +61,7 @@ export const jobsTTMarkup = `<div class="listone "><div class="toggle94563">
 </div>
 </div><!-- class toggle end -->
 </div>
-</div>`;
+</div>`
 
 export const trinidadJobsMarkup = `<div class="job-item ">
 <div class="job-image">
@@ -103,7 +103,7 @@ export const trinidadJobsMarkup = `<div class="job-item ">
     </div>
 
 
-</div>`;
+</div>`
 
 export const crsMarkup = `<table class="table-condensed cf tp_rowitem" style="width: 100%;">
 <thead class="cf">
@@ -120,7 +120,7 @@ export const crsMarkup = `<table class="table-condensed cf tp_rowitem" style="wi
 <td data-title="Location" class="td_location"><span>Port of Spain</span></td>
 <td data-title="Job Type" class="td_jobtype"><span></span></td>
 </tr></tbody>
-</table>`;
+</table>`
 
 export const eveAndersonMarkup = `<table class="table-condensed cf tp_rowitem" style="width: 100%;">
 <thead class="cf">
@@ -137,7 +137,7 @@ export const eveAndersonMarkup = `<table class="table-condensed cf tp_rowitem" s
 <td data-title="Location" class="td_location"><span>Port of Spain</span></td>
 <td data-title="Job Type" class="td_jobtype"><span>Permanent</span></td>
 </tr></tbody>
-</table>`;
+</table>`
 
 export const webfxMarkup = `<div class="awsm-job-listing-item awsm-grid-item" id="awsm-grid-item-17354">		<a href="https://webfx.co.tt/career/digital-content-producer/" class="awsm-job-item">			<div class="awsm-grid-left-col">
 				
@@ -149,7 +149,7 @@ export const webfxMarkup = `<div class="awsm-job-listing-item awsm-grid-item" id
 
 <div class="awsm-grid-right-col">
 <div class="awsm-job-more-container"><span class="awsm-job-more">Apply Now <span></span></span></div>			</div>
-</a>	</div>`;
+</a>	</div>`
 
 export const employttMarkup = `<div class="job-section section pt-40 pt-lg-40 pt-md-35 pt-sm-15 pt-xs-5 pb-80 pb-lg-60 pb-md-40 pb-sm-20 pb-xs-10">
 <div class="container-sm">
@@ -217,7 +217,7 @@ export const employttMarkup = `<div class="job-section section pt-40 pt-lg-40 pt
         </div>
     </div>
 </div>
-</div>`;
+</div>`
 
 export const massyFinanceMarkup = {
   meta: {
@@ -237,7 +237,7 @@ export const massyFinanceMarkup = {
       isRemote: false,
     },
   ],
-};
+}
 
 export const fcbMarkup = `<table role="grid" id="searchresults" class="searchResults full table table-striped table-hover" cellpadding="0" cellspacing="0" aria-labelledby="caption">
 <caption id="caption" role="alert" aria-live="polite" style="font-size:0px;">
@@ -364,7 +364,7 @@ Aranguez, SJL, TT
         </tr>
 </tbody>
 
-</table>`;
+</table>`
 
 export const rbcMarkup = {
   refineSearch: {
@@ -419,7 +419,7 @@ export const rbcMarkup = {
   experimentData: {
     exp189: 'PageRank_250',
   },
-};
+}
 
 export const jobWerldMarkup = {
   found_jobs: true,
@@ -430,4 +430,4 @@ export const jobWerldMarkup = {
   html: '<li class="post-57538 job_listing type-job_listing status-publish job_listing_region-trinidad job_listing_region-tunapuna job_listing_tag-call-center-representatives job-type-full-time czr-hentry" data-longitude="" data-latitude="">\n\t<a href="https://jobwerld.com/job/call-center-representatives/">\n\t\t<img class="company_logo" src="https://jobwerld.com/wp-content/plugins/wp-job-manager/assets/images/company.png" alt="Viva Management Limited" />\t\t<div class="position">\n\t\t\t<h3>Call Center Representatives</h3>\n\t\t\t<div class="company">\n\t\t\t\t<strong>Viva Management Limited</strong> \t\t\t\t\t\t\t</div>\n\t\t</div>\n\t\t<div class="location">\n\t\t\tTrinidad &amp; Tobago, Tunapuna\t\t</div>\n\t\t<ul class="meta">\n\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li class="job-type full-time">Full Time</li>\n\t\t\t\t\t\t\t\n\t\t\t<li class="date"><time datetime="2022-11-28">Posted 1 day ago</time></li>\n\n\t\t\t<li class="application-deadline  "><label>Closes:</label> December 16, 2022</li>\t\t</ul>\n\t</a>\n</li>\n',
   tag_filter:
     '<a href="https://jobwerld.com/job-tag/cashier/" class="tag-cloud-link tag-link-204 tag-link-position-1" style="font-size: 2em;" aria-label="Cashier (4 jobs)">Cashier</a>\n<a href="https://jobwerld.com/job-tag/administrative-assistant/" class="tag-cloud-link tag-link-205 tag-link-position-2" style="font-size: 1.75em;" aria-label="Administrative Assistant (3 jobs)">Administrative Assistant</a>\n<a href="https://jobwerld.com/job-tag/assistant-manager/" class="tag-cloud-link tag-link-258 tag-link-position-3" style="font-size: 1.45em;" aria-label="Assistant Manager (2 jobs)">Assistant Manager</a>\n<a href="https://jobwerld.com/job-tag/security-officers/" class="tag-cloud-link tag-link-301 tag-link-position-4" style="font-size: 1.45em;" aria-label="Security Officers (2 jobs)">Security Officers</a>\n<a href="https://jobwerld.com/job-tag/inventory-clerk/" class="tag-cloud-link tag-link-475 tag-link-position-5" style="font-size: 1.45em;" aria-label="Inventory Clerk (2 jobs)">Inventory Clerk</a>\n<a href="https://jobwerld.com/job-tag/customer-service-representative/" class="tag-cloud-link tag-link-596 tag-link-position-6" style="font-size: 1.45em;" aria-label="Customer Service Representative (2 jobs)">Customer Service Representative</a>\n<a href="https://jobwerld.com/job-tag/accountant/" class="tag-cloud-link tag-link-171 tag-link-position-7" style="font-size: 1em;" aria-label="Accountant (1 job)">Accountant</a>\n<a href="https://jobwerld.com/job-tag/sales-supervisor/" class="tag-cloud-link tag-link-181 tag-link-position-8" style="font-size: 1em;" aria-label="Sales Supervisor (1 job)">Sales Supervisor</a>\n<a href="https://jobwerld.com/job-tag/production-supervisor/" class="tag-cloud-link tag-link-523 tag-link-position-9" style="font-size: 1em;" aria-label="Production Supervisor (1 job)">Production Supervisor</a>\n<a href="https://jobwerld.com/job-tag/security-officer/" class="tag-cloud-link tag-link-617 tag-link-position-10" style="font-size: 1em;" aria-label="Security Officer (1 job)">Security Officer</a>\n<a href="https://jobwerld.com/job-tag/plumbers/" class="tag-cloud-link tag-link-780 tag-link-position-11" style="font-size: 1em;" aria-label="plumbers (1 job)">plumbers</a>\n<a href="https://jobwerld.com/job-tag/office-assistant/" class="tag-cloud-link tag-link-839 tag-link-position-12" style="font-size: 1em;" aria-label="Office Assistant (1 job)">Office Assistant</a>\n<a href="https://jobwerld.com/job-tag/accounting-assistant/" class="tag-cloud-link tag-link-858 tag-link-position-13" style="font-size: 1em;" aria-label="Accounting Assistant (1 job)">Accounting Assistant</a>\n<a href="https://jobwerld.com/job-tag/sales-associate/" class="tag-cloud-link tag-link-985 tag-link-position-14" style="font-size: 1em;" aria-label="Sales Associate (1 job)">Sales Associate</a>\n<a href="https://jobwerld.com/job-tag/sales-executive/" class="tag-cloud-link tag-link-994 tag-link-position-15" style="font-size: 1em;" aria-label="Sales Executive (1 job)">Sales Executive</a>\n<a href="https://jobwerld.com/job-tag/sales-representatives/" class="tag-cloud-link tag-link-1092 tag-link-position-16" style="font-size: 1em;" aria-label="Sales Representatives (1 job)">Sales Representatives</a>\n<a href="https://jobwerld.com/job-tag/sales-manager/" class="tag-cloud-link tag-link-1257 tag-link-position-17" style="font-size: 1em;" aria-label="Sales Manager (1 job)">Sales Manager</a>\n<a href="https://jobwerld.com/job-tag/human-resources-officer/" class="tag-cloud-link tag-link-1469 tag-link-position-18" style="font-size: 1em;" aria-label="Human Resources Officer (1 job)">Human Resources Officer</a>\n<a href="https://jobwerld.com/job-tag/store-clerk/" class="tag-cloud-link tag-link-1759 tag-link-position-19" style="font-size: 1em;" aria-label="Store Clerk (1 job)">Store Clerk</a>\n<a href="https://jobwerld.com/job-tag/janitor/" class="tag-cloud-link tag-link-1807 tag-link-position-20" style="font-size: 1em;" aria-label="Janitor (1 job)">Janitor</a>\n<a href="https://jobwerld.com/job-tag/operations-attendant/" class="tag-cloud-link tag-link-1862 tag-link-position-21" style="font-size: 1em;" aria-label="Operations Attendant (1 job)">Operations Attendant</a>\n<a href="https://jobwerld.com/job-tag/office-custodian/" class="tag-cloud-link tag-link-2181 tag-link-position-22" style="font-size: 1em;" aria-label="Office Custodian (1 job)">Office Custodian</a>\n<a href="https://jobwerld.com/job-tag/pharmacy-assistant/" class="tag-cloud-link tag-link-2387 tag-link-position-23" style="font-size: 1em;" aria-label="Pharmacy Assistant (1 job)">Pharmacy Assistant</a>\n<a href="https://jobwerld.com/job-tag/store-supervisor/" class="tag-cloud-link tag-link-897 tag-link-position-24" style="font-size: 1em;" aria-label="Store Supervisor (1 job)">Store Supervisor</a>\n<a href="https://jobwerld.com/job-tag/part-time-pharmacist/" class="tag-cloud-link tag-link-2561 tag-link-position-25" style="font-size: 1em;" aria-label="Part-time Pharmacist (1 job)">Part-time Pharmacist</a>',
-};
+}
