@@ -105,7 +105,7 @@ export class JobService {
 
       // Wait for possible scrape protection timeout
       if (options.selector) {
-        await page.waitForSelector(options.selector, { timeout: 10000 })
+        await page.waitForSelector(options.selector, { timeout: 30000 })
         body = await page.content()
       }
 
@@ -158,8 +158,8 @@ export class JobService {
     total += await this.scrapeCaribbeanJobs()
     total += await this.scrapeJobsTT()
     total += await this.scrapeTrinidadJobs()
-    // total += await this.scrapeCRS();
-    // total += await this.scrapeEveAnderson();
+    total += await this.scrapeCRS();
+    total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx()
     total += await this.scrapeEmployTT()
     total += await this.scrapeMassyFinance()
