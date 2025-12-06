@@ -15,7 +15,7 @@ export type JobApiResponse = {
 }
 @Injectable()
 export class JobService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
   private readonly logger = new Logger(JobService.name)
   JOB_MONTH_LIMIT = 3
 
@@ -157,7 +157,7 @@ export class JobService {
 
     total += await this.scrapeCaribbeanJobs()
     total += await this.scrapeJobsTT()
-    total += await this.scrapeTrinidadJobs()
+    // total += await this.scrapeTrinidadJobs()
     total += await this.scrapeCRS();
     total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx()
@@ -167,8 +167,7 @@ export class JobService {
     total += await this.scrapeRBC()
 
     this.logger.log(
-      `Finished running all scrapers. ${total} total new job${
-        total === 1 ? '' : 's'
+      `Finished running all scrapers. ${total} total new job${total === 1 ? '' : 's'
       } added`
     )
   }
@@ -246,8 +245,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Caribbean Jobs. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping Caribbean Jobs. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added.`
       )
     } catch (e) {
@@ -296,8 +294,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping JobsTT. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping JobsTT. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added.`
       )
       return newJobs
@@ -307,70 +304,70 @@ export class JobService {
     }
   }
 
-  async scrapeTrinidadJobs(): Promise<number> {
-    const url =
-      'https://www.trinidadjob.com/jobs/?keyword=&iwj_location=&iwj_cat=&iwj_type=&iwj_skill=&iwj_level=&iwj_salary='
-    let newJobs = 0
-
-    try {
-      this.logger.log('Scraping Trinidad Jobs')
-
-      const res = await fetch(url)
-      const body = await res.text()
-
-      const $ = cheerio.load(body)
-
-      const jobs = $('.job-item')
-
-      this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
-
-      for (const el of jobs.toArray().reverse()) {
-        const job = $(el)
-        const title = job
-          .find('.job-content-wrap>.job-info>.job-title>a')
-          .text()
-          .trim()
-        const company = job
-          .find('.job-content-wrap>.job-info>.info-company>.company>a')
-          .text()
-          .trim()
-        const location = job
-          .find(
-            '.job-content-wrap>.job-info>.info-company>.address>span>span>span:first-child'
-          )
-          .text()
-          .trim()
-        const jobURL = job
-          .find('.job-content-wrap>.job-info>.job-title>a')
-          .attr('href')
-        const description = ''
-
-        if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          })
-        )
-          newJobs++
-      }
-
-      this.logger.log(
-        `Finished scraping Trinidad Jobs. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
-        } added.`
-      )
-      return newJobs
-    } catch (e) {
-      this.logger.error(`Error scraping Trinidad Jobs: ${e}`)
-      return newJobs
-    }
-  }
+  // async scrapeTrinidadJobs(): Promise<number> {
+  //   const url =
+  //     'https://www.trinidadjob.com/jobs/?keyword=&iwj_location=&iwj_cat=&iwj_type=&iwj_skill=&iwj_level=&iwj_salary='
+  //   let newJobs = 0
+  //
+  //   try {
+  //     this.logger.log('Scraping Trinidad Jobs')
+  //
+  //     const res = await fetch(url)
+  //     const body = await res.text()
+  //
+  //     const $ = cheerio.load(body)
+  //
+  //     const jobs = $('.job-item')
+  //
+  //     this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
+  //
+  //     for (const el of jobs.toArray().reverse()) {
+  //       const job = $(el)
+  //       const title = job
+  //         .find('.job-content-wrap>.job-info>.job-title>a')
+  //         .text()
+  //         .trim()
+  //       const company = job
+  //         .find('.job-content-wrap>.job-info>.info-company>.company>a')
+  //         .text()
+  //         .trim()
+  //       const location = job
+  //         .find(
+  //           '.job-content-wrap>.job-info>.info-company>.address>span>span>span:first-child'
+  //         )
+  //         .text()
+  //         .trim()
+  //       const jobURL = job
+  //         .find('.job-content-wrap>.job-info>.job-title>a')
+  //         .attr('href')
+  //       const description = ''
+  //
+  //       if (
+  //         await this.addJobToDatabase({
+  //           title,
+  //           company,
+  //           description,
+  //           location,
+  //           url: jobURL,
+  //           sector: 'PRIVATE',
+  //           createdAt: null,
+  //           expiresAt: null,
+  //         })
+  //       )
+  //         newJobs++
+  //     }
+  //
+  //     this.logger.log(
+  //       `Finished scraping Trinidad Jobs. ${newJobs} new job${
+  //         newJobs === 1 ? '' : 's'
+  //       } added.`
+  //     )
+  //     return newJobs
+  //   } catch (e) {
+  //     this.logger.error(`Error scraping Trinidad Jobs: ${e}`)
+  //     return newJobs
+  //   }
+  // }
 
   async scrapeCRS(): Promise<number> {
     const url = 'https://www.crsrecruitment.co.tt/jobs/'
@@ -412,8 +409,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping CRS. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping CRS. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added.`
       )
       return newJobs
@@ -462,8 +458,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Eve Anderson. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping Eve Anderson. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added.`
       )
       return newJobs
@@ -512,8 +507,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping WebFx. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping WebFx. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added`
       )
       return newJobs
@@ -567,8 +561,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping EmployTT. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping EmployTT. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -595,8 +588,7 @@ export class JobService {
       const body = await res.json()
 
       this.logger.log(
-        `${body.meta.totalCount} job${
-          body.meta.totalCount === 1 ? '' : 's'
+        `${body.meta.totalCount} job${body.meta.totalCount === 1 ? '' : 's'
         } found.`
       )
       const jobs = body.result
@@ -624,8 +616,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping Massy Finance. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping Massy Finance. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -680,8 +671,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping FCB. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping FCB. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -770,8 +760,7 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping RBC. ${newJobs} new job${
-          newJobs === 1 ? '' : 's'
+        `Finished scraping RBC. ${newJobs} new job${newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
