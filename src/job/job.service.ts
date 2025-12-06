@@ -255,8 +255,7 @@ export class JobService {
   }
 
   async scrapeJobsTT(): Promise<number> {
-    const url =
-      'https://jobstt.com/search-results-jobs/?searchId=1668009993.4696&action=search&page=1&listings_per_page=100&view=list'
+    const url = 'https://jobstt.com/job?orderby=&limit=60'
     let newJobs = 0
 
     try {
@@ -267,15 +266,16 @@ export class JobService {
 
       const $ = cheerio.load(body)
 
-      const jobs = $('.listone')
+      const jobs = $('.job-block .big-content')
 
       this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
 
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
-        const title = job.find('.list1right>h1>a>strong').text().trim()
-        const company = job.find('.list1right>h1>small').text().trim()
-        const jobUrl = job.find('.list1right>h1>a').attr('href')
+        const title = job.find('div>h4.font-20').text().trim()
+        const company = job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() || null
+        const jobUrl = job.find('div>h4.font-20>a').attr('href')
+        const location = $('ul.job-info>li>span.flaticon-map-locator')?.parent()?.text()?.trim() || null
         const description = ''
 
         if (
@@ -283,7 +283,7 @@ export class JobService {
             title,
             company,
             description,
-            location: null,
+            location,
             url: jobUrl,
             sector: 'PRIVATE',
             createdAt: null,
