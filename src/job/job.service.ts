@@ -96,7 +96,7 @@ export class JobService {
       await page.goto(url)
 
       // If the page has to load an iframe
-      if (options.iframeName) {
+      if (options?.iframeName) {
         const frame = page
           .frames()
           .find(frame => frame.name() === options.iframeName)
@@ -104,7 +104,7 @@ export class JobService {
       }
 
       // Wait for possible scrape protection timeout
-      if (options.selector) {
+      if (options?.selector) {
         await page.waitForSelector(options.selector, { timeout: 30000 })
         body = await page.content()
       }
@@ -261,8 +261,9 @@ export class JobService {
     try {
       this.logger.log('Scraping JobsTT')
 
-      const res = await fetch(url)
-      const body = await res.text()
+      const body = await this.getMarkupWithPuppeteer(url, {
+        selector: '.bg-lights'
+      })
 
       const $ = cheerio.load(body)
 
@@ -273,9 +274,9 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('div>h4.font-20').text().trim()
-        const company = job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() || null
+        const company = job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() || 'Employer Confidential'
         const jobUrl = job.find('div>h4.font-20>a').attr('href')
-        const location = $('ul.job-info>li>span.flaticon-map-locator')?.parent()?.text()?.trim() || null
+        const location = job.find('ul.job-info>li>span.flaticon-map-locator')?.parent()?.text()?.trim() || null
         const description = ''
 
         if (
