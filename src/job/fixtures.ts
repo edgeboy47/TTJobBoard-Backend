@@ -34,34 +34,63 @@ export const caribbeanJobsMarkup = `<div class="module job-result highlighted">
 </div>
 </div>`
 
-export const jobsTTMarkup = `<div class="listone "><div class="toggle94563">
-<div class="list1left"><a href="https://jobstt.com/company/104425/THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"><img src="https://jobstt.com/files/pictures/sportTT_20210510142043.png" alt="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED Image" title="THE-SPORTS-COMPANY-OF-TRINIDAD-%26-TOBAGO-LIMITED"></a></div>
-</div>
-<div class="list1right">
-<h1>
-<a href="https://jobstt.com/display-job/94563/HEAD,-CORPORATE-COMMUNICATIONS.html?searchId=1668026378.4109&amp;page=1"><strong>HEAD, CORPORATE COMMUNICATIONS</strong></a>
-    <!-- show/hide green text link - start -->
-                                                                    <span class="notforme_close" style="padding:5px 10px !important;"><a style="padding:0 !important;" data-id="94563" id="94563" data-sess="vau6r6llq90620a18s5rpgkb81">Hide this Job x</a></span>
-                                                        <!-- show/hide green text link - end -->
-<br><small>THE SPORTS COMPANY OF TRINIDAD &amp; TOBAGO LIMITED</small>
-</h1>
-<!-- class toggle start -->
-<div class="toggle94563">
-<div class="citycost">
-                                                                <span class="fulltimejob">Contract</span>
-            <span class="date">Posted On 11.09.2022</span>
-<span class="hr">Employer</span>
-</div>
-<div class="btnpart">
-                                                                                    <a href="https://jobstt.com/saved-ads/?listing_id=94563" onclick="popUpWindow('https://jobstt.com/saved-ads/?listing_id=94563&amp;displayForm=1', 690, 'Save this Job', true, true); return false;" class="star">Save This Job</a>&nbsp;
-                                                                        <a href="https://jobstt.com/display-job/94563/HEAD,-CORPORATE-COMMUNICATIONS.html?searchId=1668026378.4109&amp;page=1" class="smbtn">Show More</a>
-            <div class="clr"></div>
-<span id="formNote_94563" class="cvtips">
-            </span>
-</div>
-</div><!-- class toggle end -->
-</div>
-</div>`
+export const jobsTTMarkup = `<div class="job-block">
+                                                                                <div class="inner-box bg-transparent bg-borders">
+                                            <div class="content big-content">                                                
+                                                                                                    <span class="company-logo">
+                                                                                                                <a href="https://jobstt.com/companies/memory-bank-computers-ltd">
+                                                            <img src="https://storage.googleapis.com/jobstt-cloud-storage/uploads/pictures/Memory_Bank_Computers_Logo_20181024090851.png?GoogleAccessId=jobstt-storage-access%40premium-catbird-462722-d4.iam.gserviceaccount.com&amp;Expires=1765119186&amp;Signature=VMYS3mS%2FuPMJ7mUeeG0Qw13C6MOUXfRgRfS3U9PqKAWh9Q2H2qWfqNaNW%2BbYHH36weieS%2FSoEci9jIReG3WdWZopS2qoyNzILj%2FbnZfWBRo3M15%2BER9C8aV8zy%2FSxqe5EMUxQVZe%2F8MZ7JAyvKhcerSHaraaHkBE49JpTmDs%2BInxw5vEv6kid0GwkChMsPAFOQBpgfwGOsuXBZyxMp66tG8HMarWHNiZymHzYU%2BjFlSEJYxJskIh5weZBVzS%2BNh6AP1MGGwRkEyTeI8I026kBgbhc72cR9LotiRpbci%2Bf40W7bRhhqaDjxMT6Phb4hcPX5PY3fJZYICUu6RbDEFMeg%3D%3D" alt="Memory Bank Computers Ltd">
+                                                        </a>
+                                                                                                            </span>
+                                                
+                                                <div>
+                                                    <h4 class="font-20">
+                                                        <a href="https://jobstt.com/job/facilities-manager-mid-sized-retail-mall">FACILITIES MANAGER (MID SIZED RETAIL MALL)</a>
+                                                    </h4>
+
+                                                                                                            <ul class="job-info">
+                                                            <li>
+                                                                <i class="icon bi bi-buildings"></i>
+                                                                <strong style="color:#1c8d44"> Memory Bank Computers Ltd </strong>
+                                                            </li>
+                                                        </ul>
+                                                    
+                                                                                                            <ul class="job-info">
+                                                            <li>
+                                                                <span class="icon flaticon-briefcase"></span>
+                                                                Real Estate
+                                                            </li>
+                                                        </ul>
+                                                    
+                                                    <!-- Job Type -->
+                                                                                                            <ul class="job-info">
+                                                            <li>
+                                                                <span class="icon las la-business-time"></span> 
+                                                                Full time
+                                                            </li>
+                                                        </ul>
+                                                                                                        <!-- End Job Type -->
+
+                                                    <ul class="job-info">
+                                                                                                                                                                                <li><span class="icon flaticon-map-locator"></span>
+                                                                Other</li>
+                                                                                                                                                                            <li><span class="icon flaticon-clock-3"></span>
+                                                                09/12/2025</li>
+                                                                                                                                                                            <li><span class="icon flaticon-money"></span>
+                                                                Undisclosed</li>
+                                                                                                            </ul>
+                                                    <ul class="job-other-info">
+                                                        
+                                                                                                                                                                            <li class="required">Urgent</li>
+                                                                                                            </ul>
+                                                </div>
+                                                <button class="bookmark-btn  service-wishlist" data-id="123626" data-type="job">
+                                                    <img src="https://jobstt.com/images/loading.gif" class="loading-icon" alt="loading">
+                                                    <span class="flaticon-bookmark"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>`
 
 export const trinidadJobsMarkup = `<div class="job-item ">
 <div class="job-image">
