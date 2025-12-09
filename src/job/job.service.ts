@@ -519,19 +519,31 @@ export class JobService {
   }
 
   async scrapeEmployTT(): Promise<number> {
-    const url = 'https://employtt.gov.tt/'
+    const url = 'https://employtt.gov.tt/jobs/list'
     let newJobs = 0
 
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
     try {
       this.logger.log('Scraping EmployTT')
 
-      const res = await fetch(url)
-      const body = await res.text()
+      await page.goto(url)
+
+      const pageDropDownSelector = 'div[data-control-type="items-per-page-drop-down"'
+      await page.waitForSelector(pageDropDownSelector, { timeout: 30000 })
+      const dropdown = await page.$(pageDropDownSelector)
+      await dropdown.scrollIntoView()
+      await dropdown.click()
+
+      const allJobsSelector = 'span[data-number="all"]'
+      await page.waitForSelector(allJobsSelector, { timeout: 30000 })
+      const allJobsOption = await page.$(allJobsSelector)
+      await allJobsOption.click()
+
+      const body = await page.content()
 
       const $ = cheerio.load(body)
-      const jobs = $(
-        'div.job-section.section > div > div:nth-child(2) > .col-lg-12'
-      )
+      const jobs = $('div#list>div.row.list>div.filter-item')
 
       this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
 
@@ -540,7 +552,7 @@ export class JobService {
         const title = job.find('h3.job-title').text().trim()
         const jobURL = job.find('h3.job-title > a').attr('href')
         const location = job
-          .find('.job-meta-two > .field-map > a')
+          .find('.job-meta-two > .field-map > span.locationfilter.decode')
           .text()
           .trim()
         const company = job.find('.employer-name').text().trim()
@@ -567,6 +579,9 @@ export class JobService {
       )
     } catch (e) {
       this.logger.error(`Error scraping EmployTT: ${e}`)
+    } finally {
+      await page.close()
+      await browser.close()
     }
 
     return newJobs
