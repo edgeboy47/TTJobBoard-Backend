@@ -159,7 +159,7 @@ export class JobService {
     total += await this.scrapeJobsTT()
     // total += await this.scrapeTrinidadJobs()
     total += await this.scrapeCRS();
-    total += await this.scrapeEveAnderson();
+    // total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx()
     total += await this.scrapeEmployTT()
     total += await this.scrapeMassyFinance()
@@ -420,54 +420,55 @@ export class JobService {
     }
   }
 
-  async scrapeEveAnderson(): Promise<number> {
-    const url = 'https://www.eveandersonrecruitment.com/jobs-2/'
-    let newJobs = 0
-
-    try {
-      this.logger.log('Scraping Eve Anderson')
-      const body = await this.getMarkupWithPuppeteer(url, {
-        iframeName: 'pcrframe',
-      })
-
-      const $ = cheerio.load(body)
-      const jobs = $('table.table-condensed>tbody>tr')
-
-      this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
-      for (const el of jobs.toArray().reverse()) {
-        const job = $(el)
-
-        const title = job.find('.td_jobtitle>a').text().trim()
-        const company = ''
-        const description = ''
-        const jobURL = job.find('.td_jobtitle>a').attr('href')
-        const location = job.find('.td_location>span').text().trim()
-
-        if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            description,
-            location,
-            url: `https://host.pcrecruiter.net${jobURL}`,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          })
-        )
-          newJobs++
-      }
-
-      this.logger.log(
-        `Finished scraping Eve Anderson. ${newJobs} new job${newJobs === 1 ? '' : 's'
-        } added.`
-      )
-      return newJobs
-    } catch (e) {
-      this.logger.error(`Error scraping Eve Anderson: ${e}`)
-      return newJobs
-    }
-  }
+  // Most of these get posted on CaribbeanJobs anyway so no point having both
+  // async scrapeEveAnderson(): Promise<number> {
+  //   const url = 'https://www.eveandersonrecruitment.com/jobs-2/'
+  //   let newJobs = 0
+  //
+  //   try {
+  //     this.logger.log('Scraping Eve Anderson')
+  //     const body = await this.getMarkupWithPuppeteer(url, {
+  //       iframeName: 'pcrframe',
+  //     })
+  //
+  //     const $ = cheerio.load(body)
+  //     const jobs = $('table.table-condensed>tbody>tr')
+  //
+  //     this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
+  //     for (const el of jobs.toArray().reverse()) {
+  //       const job = $(el)
+  //
+  //       const title = job.find('.td_jobtitle>a').text().trim()
+  //       const company = ''
+  //       const description = ''
+  //       const jobURL = job.find('.td_jobtitle>a').attr('href')
+  //       const location = job.find('.td_location>span').text().trim()
+  //
+  //       if (
+  //         await this.addJobToDatabase({
+  //           title,
+  //           company,
+  //           description,
+  //           location,
+  //           url: `https://host.pcrecruiter.net${jobURL}`,
+  //           sector: 'PRIVATE',
+  //           createdAt: null,
+  //           expiresAt: null,
+  //         })
+  //       )
+  //         newJobs++
+  //     }
+  //
+  //     this.logger.log(
+  //       `Finished scraping Eve Anderson. ${newJobs} new job${newJobs === 1 ? '' : 's'
+  //       } added.`
+  //     )
+  //     return newJobs
+  //   } catch (e) {
+  //     this.logger.error(`Error scraping Eve Anderson: ${e}`)
+  //     return newJobs
+  //   }
+  // }
 
   async scrapeWebFx(): Promise<number> {
     const url = 'https://webfx.co.tt/careers/'
