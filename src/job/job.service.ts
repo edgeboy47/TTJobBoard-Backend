@@ -93,8 +93,13 @@ export class JobService {
     try {
       this.logger.log('Retrieving markup using Puppeteer')
 
+      await page.setExtraHTTPHeaders({
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
+        'Referer': 'none'
+      })
+
       await page.goto(url)
-      this.logger.log(`Loaded page: ${page.url()}`)
 
       // If the page has to load an iframe
       if (options?.iframeName) {
@@ -106,7 +111,6 @@ export class JobService {
 
       // Wait for possible scrape protection timeout
       if (options?.selector) {
-        this.logger.log('Waiting for selector')
         await page.waitForSelector(options.selector, { timeout: 30000 })
         body = await page.content()
       }
