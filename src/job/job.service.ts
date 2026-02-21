@@ -94,6 +94,7 @@ export class JobService {
       this.logger.log('Retrieving markup using Puppeteer')
 
       await page.goto(url)
+      this.logger.log(`Loaded page: ${page.url()}`)
 
       // If the page has to load an iframe
       if (options?.iframeName) {
@@ -105,6 +106,7 @@ export class JobService {
 
       // Wait for possible scrape protection timeout
       if (options?.selector) {
+        this.logger.log('Waiting for selector')
         await page.waitForSelector(options.selector, { timeout: 30000 })
         body = await page.content()
       }
