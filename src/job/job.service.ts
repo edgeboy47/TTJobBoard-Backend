@@ -4,6 +4,7 @@ import { Job } from '@prisma/client'
 import * as cheerio from 'cheerio'
 import puppeteer from 'puppeteer'
 import { PrismaService } from '../prisma/prisma.service'
+import { ConfigService } from '@nestjs/config'
 
 export type JobApiResponse = {
   data: Job[]
@@ -15,7 +16,7 @@ export type JobApiResponse = {
 }
 @Injectable()
 export class JobService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService) { }
   private readonly logger = new Logger(JobService.name)
   JOB_MONTH_LIMIT = 3
 
@@ -86,8 +87,14 @@ export class JobService {
     url: string,
     options?: { selector?: string; iframeName?: string }
   ): Promise<string> {
-    const browser = await puppeteer.launch()
+    const browser = await puppeteer.launch({
+      args: ['--proxy-server=p.webshare.io:80'],
+    })
     const page = await browser.newPage()
+    await page.authenticate({
+      username: this.configService.get<string>('PROXY_USERNAME'),
+      password: this.configService.get<string>('PROXY_PASSWORD'),
+    })
     let body = ''
 
     try {
