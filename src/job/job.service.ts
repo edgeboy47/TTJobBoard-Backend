@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Job } from '@prisma/client'
 import * as cheerio from 'cheerio'
-import puppeteer from 'puppeteer'
+import puppeteer, { Browser } from 'puppeteer'
 import { PrismaService } from '../prisma/prisma.service'
 import { ConfigService } from '@nestjs/config'
 
@@ -87,14 +87,25 @@ export class JobService {
     url: string,
     options?: { selector?: string; iframeName?: string }
   ): Promise<string> {
-    const browser = await puppeteer.launch({
-      args: ['--proxy-server=p.webshare.io:80'],
-    })
+    let browser: Browser
+
+    if (url.includes('caribbeanjobs')) {
+      this.logger.log("Using Puppeteer with proxy")
+      browser = await puppeteer.launch({
+        args: ['--proxy-server=p.webshare.io:80'],
+      })
+    } else {
+      browser = await puppeteer.launch()
+    }
+
     const page = await browser.newPage()
-    await page.authenticate({
-      username: this.configService.get<string>('PROXY_USERNAME'),
-      password: this.configService.get<string>('PROXY_PASSWORD'),
-    })
+
+    if (url.includes('caribbeanjobs')) {
+      await page.authenticate({
+        username: this.configService.get<string>('PROXY_USERNAME'),
+        password: this.configService.get<string>('PROXY_PASSWORD'),
+      })
+    }
     let body = ''
 
     try {
@@ -274,9 +285,13 @@ export class JobService {
     try {
       this.logger.log('Scraping JobsTT')
 
-      const body = await this.getMarkupWithPuppeteer(url, {
-        selector: '.bg-lights'
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
+        }
       })
+      const body = await res.text()
 
       const $ = cheerio.load(body)
 
