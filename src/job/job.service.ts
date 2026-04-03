@@ -24,7 +24,8 @@ export class JobService {
     perPage?: number,
     page?: number,
     title?: string,
-    company?: string
+    company?: string,
+    location?: string,
   ): Promise<JobApiResponse> {
     try {
       const limit = perPage || 15
@@ -46,6 +47,11 @@ export class JobService {
             contains: company || '',
             mode: 'insensitive',
           },
+
+          location: {
+            contains: location || '',
+            mode: 'insensitive'
+          },
         },
       })
 
@@ -59,6 +65,11 @@ export class JobService {
           company: {
             contains: company || '',
             mode: 'insensitive',
+          },
+
+          location: {
+            contains: location || '',
+            mode: 'insensitive'
           },
         },
       })

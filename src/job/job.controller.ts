@@ -6,10 +6,11 @@ export type JobSearchParams = {
   perPage?: string;
   title?: string;
   company?: string;
+  location?: string;
 };
 @Controller('jobs')
 export class JobController {
-  constructor(private readonly service: JobService) {}
+  constructor(private readonly service: JobService) { }
 
   @Get()
   async getAllJobs(
@@ -21,6 +22,7 @@ export class JobController {
       parseInt(params.page),
       params.title,
       params.company,
+      params.location,
     );
   }
 }
