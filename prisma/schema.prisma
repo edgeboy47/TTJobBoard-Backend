@@ -16,6 +16,7 @@ model Job {
   company String
   location String?
   url String
+  logoUrl String?
   createdAt DateTime? @default(now())
   expiresAt DateTime?
   sector Sector
