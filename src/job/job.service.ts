@@ -157,7 +157,7 @@ export class JobService {
 
   // Helper function that adds a job to the database and returns whether it was successful
   async addJobToDatabase(job: Job): Promise<boolean> {
-    const { title, company, description, url, location, sector } = job
+    const { title, company, description, url, location, sector, logoUrl } = job
 
     // Check if job listing already exists
     const exists = await this.prisma.job.findUnique({
@@ -178,6 +178,7 @@ export class JobService {
           url,
           location,
           sector,
+          logoUrl,
         },
       })
     }
@@ -255,6 +256,7 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('.job-result-title>h2').text().trim()
+        const logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || ''
         const company = job.find('.job-result-title>h3').text().trim()
         const jobURL = job.find('.job-result-title>h2>a').attr('href')
         const description = job.find('p>span').text().trim()
@@ -267,6 +269,7 @@ export class JobService {
         if (
           await this.addJobToDatabase({
             title,
+            logoUrl: !logoUrl.includes('default') ? logoUrl : null,
             company,
             description,
             location,
@@ -324,6 +327,7 @@ export class JobService {
             company,
             description,
             location,
+            logoUrl: null,
             url: jobUrl,
             sector: 'PRIVATE',
             createdAt: null,
@@ -437,6 +441,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: `https://host.pcrecruiter.net${jobURL}`,
@@ -536,6 +541,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -602,6 +608,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -660,6 +667,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -715,6 +723,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: `https://careers.firstcitizenstt.com${jobURL}`,
@@ -804,6 +813,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            logoUrl: null,
             description,
             location,
             url: jobURL,
