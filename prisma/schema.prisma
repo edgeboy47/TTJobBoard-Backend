@@ -28,3 +28,9 @@ enum Sector {
   PUBLIC
   PRIVATE
 }
+
+model Company {
+  id String @id
+  title String @unique
+  logoUrl String?
+}
