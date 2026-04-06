@@ -271,6 +271,7 @@ export class JobService {
             title,
             logoUrl: !logoUrl.includes('default') ? logoUrl : null,
             company,
+            companyId: null,
             description,
             location,
             url: `${baseURL}${jobURL}`,
@@ -325,6 +326,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             description,
             location,
             logoUrl: null,
@@ -441,6 +443,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
@@ -541,6 +544,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
@@ -608,6 +612,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
@@ -667,6 +672,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
@@ -723,6 +729,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
@@ -813,6 +820,7 @@ export class JobService {
           await this.addJobToDatabase({
             title,
             company,
+            companyId: null,
             logoUrl: null,
             description,
             location,
