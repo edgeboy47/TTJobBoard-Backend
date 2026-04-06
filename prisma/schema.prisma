@@ -14,6 +14,8 @@ model Job {
   title String
   description String
   company String
+  company_data Company? @relation(fields: [companyId], references: [id])
+  companyId String?
   location String?
   url String
   logoUrl String?
@@ -30,7 +32,8 @@ enum Sector {
 }
 
 model Company {
-  id String @id
+  id String @id @default(uuid())
   title String @unique
   logoUrl String?
+  jobs Job[]
 }
