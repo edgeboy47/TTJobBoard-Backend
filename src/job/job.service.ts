@@ -185,13 +185,14 @@ export class JobService {
   // Helper function that adds a job to the database and returns whether it was successful
   async addJobToDatabase(job: Job): Promise<boolean> {
     const { title, company, description, url, location, sector, logoUrl } = job
+    const companyData = await this.getOrCreateCompany(company)
 
     // Check if job listing already exists
     const exists = await this.prisma.job.findUnique({
       where: {
         title_company: {
           title,
-          company,
+          company: companyData.title,
         },
       },
     })
@@ -200,7 +201,8 @@ export class JobService {
       await this.prisma.job.create({
         data: {
           title,
-          company,
+          company: companyData.title,
+          companyId: companyData.id,
           description,
           url,
           location,
