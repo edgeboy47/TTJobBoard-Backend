@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { Job } from '@prisma/client'
+import { Job, Company } from '@prisma/client'
 import * as cheerio from 'cheerio'
 import puppeteer, { Browser } from 'puppeteer'
 import { PrismaService } from '../prisma/prisma.service'
@@ -153,6 +153,33 @@ export class JobService {
 
       return body
     }
+  }
+
+  // Helper function to get or create a Company
+  async getOrCreateCompany(companyName: string): Promise<Company> {
+    const trimmedName = companyName.trim()
+
+    let company = await this.prisma.company.findUnique({
+      where: { title: trimmedName },
+    })
+
+    if (!company) {
+      company = await this.prisma.company.findUnique({
+        where: {
+          title: trimmedName.toUpperCase(),
+        },
+      }).catch(() => null)
+    }
+
+    // Create company if it doesn't exist
+    if (!company) {
+      company = await this.prisma.company.create({
+        data: {
+          title: trimmedName,
+        },
+      })
+    }
+    return company
   }
 
   // Helper function that adds a job to the database and returns whether it was successful
