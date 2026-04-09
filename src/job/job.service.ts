@@ -184,7 +184,7 @@ export class JobService {
 
   // Helper function that adds a job to the database and returns whether it was successful
   async addJobToDatabase(job: Job): Promise<boolean> {
-    const { title, company, description, url, location, sector, logoUrl } = job
+    const { title, company, description, url, location, sector } = job
     const companyData = await this.getOrCreateCompany(company)
 
     // Check if job listing already exists
@@ -207,7 +207,6 @@ export class JobService {
           url,
           location,
           sector,
-          logoUrl,
         },
       })
     }
@@ -298,7 +297,6 @@ export class JobService {
         if (
           await this.addJobToDatabase({
             title,
-            logoUrl: !logoUrl.includes('default') ? logoUrl : null,
             company,
             companyId: null,
             description,
@@ -358,7 +356,6 @@ export class JobService {
             companyId: null,
             description,
             location,
-            logoUrl: null,
             url: jobUrl,
             sector: 'PRIVATE',
             createdAt: null,
@@ -473,7 +470,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: `https://host.pcrecruiter.net${jobURL}`,
@@ -574,7 +570,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -642,7 +637,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -702,7 +696,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: jobURL,
@@ -759,7 +752,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: `https://careers.firstcitizenstt.com${jobURL}`,
@@ -850,7 +842,6 @@ export class JobService {
             title,
             company,
             companyId: null,
-            logoUrl: null,
             description,
             location,
             url: jobURL,
