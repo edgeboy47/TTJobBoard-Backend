@@ -284,7 +284,7 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('.job-result-title>h2').text().trim()
-        const logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || ''
+        const logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || null
         const company = job.find('.job-result-title>h3').text().trim()
         const jobURL = job.find('.job-result-title>h2>a').attr('href')
         const description = job.find('p>span').text().trim()
@@ -344,6 +344,7 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('div>h4.font-20').text().trim()
+        const logoUrl = job.find('.company-logo img').attr('src') || null
         const company = job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() || 'Employer Confidential'
         const jobUrl = job.find('div>h4.font-20>a').attr('href')
         const location = job.find('ul.job-info>li>span.flaticon-map-locator')?.parent()?.text()?.trim() || null
@@ -560,6 +561,7 @@ export class JobService {
       for (const el of jobs) {
         const job = $(el)
         const title = job.find('.awsm-job-post-title').text().trim()
+        const logoUrl = 'https://webfx.co.tt/wp-content/uploads/2025/01/Group-17.svg'
         const company = 'WebFx'
         const description = ''
         const location = 'Maraval'
@@ -624,6 +626,7 @@ export class JobService {
       for (const el of jobs) {
         const job = $(el)
         const title = job.find('h3.job-title').text().trim()
+        const logoUrl = job.find('.job-image img').attr('src') || null
         const jobURL = job.find('h3.job-title > a').attr('href')
         const location = job
           .find('.job-meta-two > .field-map > span.locationfilter.decode')
@@ -687,6 +690,7 @@ export class JobService {
       for (const job of jobs) {
         const title = job.jobOpeningName
         const description = ''
+        const logoUrl = 'https://images7.bamboohr.com/414441/logos/cropped.jpg'
         const jobURL = `https://massyfinancegfcltd.bamboohr.com/careers/${job.id}`
         const location = job.location.city
         const company = 'Massy Finance GFC Ltd'
@@ -739,6 +743,7 @@ export class JobService {
       for (const el of jobs) {
         const job = $(el)
         const title = job.find('.hidden-phone > .jobTitle-link').text().trim()
+        const logoUrl = 'https://rmkcdn.successfactors.com/9de1f0b4/d58ef7c0-a27b-414d-bced-e.jpg'
         const jobURL = job.find('.hidden-phone > .jobTitle-link').attr('href')
         const description = ''
         const company = 'First Citizens Bank'
@@ -833,6 +838,7 @@ export class JobService {
       for (const job of body.refineSearch.data.jobs) {
         const title = job.title
         const company = 'Royal Bank of Canada'
+        const logoUrl = 'https://cdn.phenompeople.com/CareerConnectResources/RBCAA0088/en_ca/desktop/assets/images/v-1730468409078-RBC-careers-logo.svg'
         const description = job.descriptionTeaser
         const jobURL = `https://jobs.rbc.com/ca/en/job/${job.jobId}`
         const location = job.city
