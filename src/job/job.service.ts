@@ -191,23 +191,26 @@ export class JobService {
       )
 
       try {
-        const fileName = `${BUCKET}/${company.id}/logo.png`
+        const fileName = `${company.id}/logo.png`
         const response = await fetch(logoUrl)
         const buffer = await response.arrayBuffer()
 
         const { data, error } = await supabase.storage.from(BUCKET).upload(fileName, Buffer.from(buffer), {
           cacheControl: '3600',
-          upsert: true,
         })
 
         if (!error) {
-          const publicUrl = `https://${this.configService.get<string>('SUPABASE_URL').split('//')[1]}/storage/v1/object/public/company-logos/${fileName}`
+          const publicUrl = `https://${this.configService.get<string>('SUPABASE_URL').split('//')[1]}/storage/v1/object/public/${data.fullPath}`
+
           await this.prisma.company.update({
             where: { id: company.id },
-            data: { logoUrl: publicUrl },
+            data: {
+              ...company,
+              logoUrl: publicUrl,
+            },
           })
         } else {
-          this.logger.warn(`Failed to upload logo for ${companyName}: ${error.message}`)
+          this.logger.warn(`Failed to upload logo for ${companyName}: ${JSON.stringify(error)}`)
         }
       } catch (uploadError) {
         this.logger.warn(`Error uploading logo for ${companyName}: ${uploadError.message}`)
