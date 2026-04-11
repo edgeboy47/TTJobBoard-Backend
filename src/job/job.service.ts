@@ -5,6 +5,9 @@ import * as cheerio from 'cheerio'
 import puppeteer, { Browser } from 'puppeteer'
 import { PrismaService } from '../prisma/prisma.service'
 import { ConfigService } from '@nestjs/config'
+import { createClient } from '@supabase/supabase-js'
+
+const BUCKET = 'companies'
 
 export type JobApiResponse = {
   data: Job[]
@@ -156,7 +159,7 @@ export class JobService {
   }
 
   // Helper function to get or create a Company
-  async getOrCreateCompany(companyName: string): Promise<Company> {
+  async getOrCreateCompany(companyName: string, logoUrl?: string): Promise<Company> {
     const trimmedName = companyName.trim()
 
     let company = await this.prisma.company.findUnique({
@@ -179,13 +182,45 @@ export class JobService {
         },
       })
     }
+
+    // add logos to new and existing companies
+    if (!company.logoUrl && logoUrl) {
+      const supabase = createClient(
+        this.configService.get<string>('SUPABASE_URL'),
+        this.configService.get<string>('SUPABASE_API_KEY')
+      )
+
+      try {
+        const fileName = `${BUCKET}/${company.id}/logo.png`
+        const response = await fetch(logoUrl)
+        const buffer = await response.arrayBuffer()
+
+        const { data, error } = await supabase.storage.from(BUCKET).upload(fileName, Buffer.from(buffer), {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+        if (!error) {
+          const publicUrl = `https://${this.configService.get<string>('SUPABASE_URL').split('//')[1]}/storage/v1/object/public/company-logos/${fileName}`
+          await this.prisma.company.update({
+            where: { id: company.id },
+            data: { logoUrl: publicUrl },
+          })
+        } else {
+          this.logger.warn(`Failed to upload logo for ${companyName}: ${error.message}`)
+        }
+      } catch (uploadError) {
+        this.logger.warn(`Error uploading logo for ${companyName}: ${uploadError.message}`)
+      }
+    }
+
     return company
   }
 
   // Helper function that adds a job to the database and returns whether it was successful
-  async addJobToDatabase(job: Job): Promise<boolean> {
+  async addJobToDatabase(job: Job, logoUrl: string = null): Promise<boolean> {
     const { title, company, description, url, location, sector } = job
-    const companyData = await this.getOrCreateCompany(company)
+    const companyData = await this.getOrCreateCompany(company, logoUrl)
 
     // Check if job listing already exists
     const exists = await this.prisma.job.findUnique({
@@ -305,7 +340,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -361,7 +396,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -578,7 +613,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -646,7 +681,7 @@ export class JobService {
             sector: 'PUBLIC',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -706,7 +741,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -763,7 +798,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
@@ -854,7 +889,7 @@ export class JobService {
             sector: 'PRIVATE',
             createdAt: null,
             expiresAt: null,
-          })
+          }, logoUrl)
         )
           newJobs++
       }
