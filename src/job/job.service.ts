@@ -191,12 +191,37 @@ export class JobService {
       )
 
       try {
-        const fileName = `${company.id}/logo.png`
         const response = await fetch(logoUrl)
         const buffer = await response.arrayBuffer()
 
+        // Detect file type from Content-Type header
+        const contentType = response.headers.get('content-type') || ''
+        let fileExtension = 'png'
+        let mimeType = 'image/png'
+
+        if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
+          fileExtension = 'jpg'
+          mimeType = 'image/jpeg'
+        } else if (contentType.includes('image/png')) {
+          fileExtension = 'png'
+          mimeType = 'image/png'
+        } else if (contentType.includes('image/gif')) {
+          fileExtension = 'gif'
+          mimeType = 'image/gif'
+        } else if (contentType.includes('image/webp')) {
+          fileExtension = 'webp'
+          mimeType = 'image/webp'
+        } else if (contentType.includes('image/svg+xml')) {
+          fileExtension = 'svg'
+          mimeType = 'image/svg+xml'
+        }
+
+        // Create a safe filename using company ID and original filename from URL
+        const fileName = `${company.id}/logo.${fileExtension}`
+
         const { data, error } = await supabase.storage.from(BUCKET).upload(fileName, Buffer.from(buffer), {
           cacheControl: '3600',
+          contentType: mimeType,
         })
 
         if (!error) {
