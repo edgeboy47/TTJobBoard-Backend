@@ -195,6 +195,9 @@ export class JobService {
       )
 
       try {
+        if (!logoUrl) {
+          return company
+        }
         const response = await fetch(logoUrl)
         if (!response.ok) {
           throw new Error(`Failed to download logo for company ${company.title}`)
