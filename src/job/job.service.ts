@@ -195,9 +195,6 @@ export class JobService {
       )
 
       try {
-        if (!logoUrl) {
-          return company
-        }
         const response = await fetch(logoUrl)
         if (!response.ok) {
           throw new Error(`Failed to download logo for company ${company.title}`)
@@ -378,7 +375,7 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('.job-result-title>h2').text().trim()
-        const logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || null
+        let logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || null
         const company = job.find('.job-result-title>h3').text().trim()
         const jobURL = job.find('.job-result-title>h2>a').attr('href')
         const description = job.find('p>span').text().trim()
@@ -387,6 +384,12 @@ export class JobService {
           .map((i, el) => $(el).text().trim())
           .toArray()
           .join(' / ')
+
+
+        // Skip default CaribbeanJobs logo
+        if (logoUrl && logoUrl?.includes('default-small')) {
+          logoUrl = null
+        }
 
         if (
           await this.addJobToDatabase({
