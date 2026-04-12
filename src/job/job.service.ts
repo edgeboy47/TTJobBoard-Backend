@@ -284,19 +284,19 @@ export class JobService {
     return !exists
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async runScrapers() {
     this.logger.log('Running all scrapers')
     let total = 0
 
-    // total += await this.scrapeCaribbeanJobs()
-    // total += await this.scrapeJobsTT()
+    total += await this.scrapeCaribbeanJobs()
+    total += await this.scrapeJobsTT()
     // total += await this.scrapeTrinidadJobs()
-    // total += await this.scrapeCRS();
+    total += await this.scrapeCRS();
     // total += await this.scrapeEveAnderson();
-    // total += await this.scrapeWebFx()
-    // total += await this.scrapeEmployTT()
-    // total += await this.scrapeMassyFinance()
+    total += await this.scrapeWebFx()
+    total += await this.scrapeEmployTT()
+    total += await this.scrapeMassyFinance()
     total += await this.scrapeFCB()
     total += await this.scrapeRBC()
 
