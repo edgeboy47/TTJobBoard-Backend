@@ -34,11 +34,15 @@ export class JobService {
       const limit = perPage || 15
       const offset = limit * (page - 1) || 0
 
+      // Fetch jobs with company info (including logoUrl)
       const data = await this.prisma.job.findMany({
         skip: offset,
         take: limit,
         orderBy: {
           createdAt: 'desc',
+        },
+        include: {
+          company_data: true,
         },
         where: {
           title: {
