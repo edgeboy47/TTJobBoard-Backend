@@ -245,7 +245,7 @@ export class JobService {
           this.logger.warn(`Failed to upload logo for ${companyName}: ${JSON.stringify(error)}`)
         }
       } catch (uploadError) {
-        this.logger.warn(`Error uploading logo for ${companyName}: ${uploadError.message}`)
+        this.logger.warn(`Error uploading logo for ${companyName}: ${JSON.stringify(uploadError)}`)
       }
     }
 
@@ -278,6 +278,22 @@ export class JobService {
           location,
           sector,
         },
+      })
+    }
+
+    // Add companyId for existing jobs
+    if (exists && !exists.companyId) {
+      await this.prisma.job.update({
+        where: {
+          title_company: {
+            title: exists.title,
+            company: companyData.title
+          }
+        },
+        data: {
+          ...exists,
+          companyId: companyData.id
+        }
       })
     }
 
