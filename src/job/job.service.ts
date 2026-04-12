@@ -255,49 +255,54 @@ export class JobService {
   // Helper function that adds a job to the database and returns whether it was successful
   async addJobToDatabase(job: Job, logoUrl: string = null): Promise<boolean> {
     const { title, company, description, url, location, sector } = job
-    const companyData = await this.getOrCreateCompany(company, logoUrl)
+    try {
+      const companyData = await this.getOrCreateCompany(company, logoUrl)
 
-    // Check if job listing already exists
-    const exists = await this.prisma.job.findUnique({
-      where: {
-        title_company: {
-          title,
-          company: companyData.title,
-        },
-      },
-    })
-
-    if (!exists) {
-      await this.prisma.job.create({
-        data: {
-          title,
-          company: companyData.title,
-          companyId: companyData.id,
-          description,
-          url,
-          location,
-          sector,
-        },
-      })
-    }
-
-    // Add companyId for existing jobs
-    if (exists && !exists.companyId) {
-      await this.prisma.job.update({
+      // Check if job listing already exists
+      const exists = await this.prisma.job.findUnique({
         where: {
           title_company: {
-            title: exists.title,
-            company: companyData.title
-          }
+            title,
+            company: companyData.title,
+          },
         },
-        data: {
-          ...exists,
-          companyId: companyData.id
-        }
       })
-    }
 
-    return !exists
+      if (!exists) {
+        await this.prisma.job.create({
+          data: {
+            title,
+            company: companyData.title,
+            companyId: companyData.id,
+            description,
+            url,
+            location,
+            sector,
+          },
+        })
+      }
+
+      // Add companyId for existing jobs
+      if (exists && !exists.companyId) {
+        await this.prisma.job.update({
+          where: {
+            title_company: {
+              title: exists.title,
+              company: companyData.title
+            }
+          },
+          data: {
+            ...exists,
+            companyId: companyData.id
+          }
+        })
+      }
+
+      return !exists
+    } catch (e) {
+      this.logger.error(`Failed to add job ${title} to database: ${JSON.stringify(e)} `)
+      return false
+    }
   }
 
   @Cron(CronExpression.EVERY_HOUR)
