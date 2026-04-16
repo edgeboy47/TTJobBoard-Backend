@@ -1,16 +1,16 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { JobApiResponse, JobService } from './job.service';
+import { Controller, Get, Query } from '@nestjs/common'
+import { JobApiResponse, JobService } from './job.service'
 
 export type JobSearchParams = {
-  page?: string;
-  perPage?: string;
-  title?: string;
-  company?: string;
-  location?: string;
-};
+  page?: string
+  perPage?: string
+  title?: string
+  company?: string
+  location?: string
+}
 @Controller('jobs')
 export class JobController {
-  constructor(private readonly service: JobService) { }
+  constructor(private readonly service: JobService) {}
 
   @Get()
   async getAllJobs(

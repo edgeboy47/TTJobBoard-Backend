@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { Job, Company } from '@prisma/client'
+import { Company, Job } from '@prisma/client'
+import { createClient } from '@supabase/supabase-js'
 import * as cheerio from 'cheerio'
 import puppeteer, { Browser } from 'puppeteer'
 import { PrismaService } from '../prisma/prisma.service'
-import { ConfigService } from '@nestjs/config'
-import { createClient } from '@supabase/supabase-js'
 
 const BUCKET = 'companies'
 
@@ -19,7 +19,10 @@ export type JobApiResponse = {
 }
 @Injectable()
 export class JobService {
-  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService
+  ) {}
   private readonly logger = new Logger(JobService.name)
   JOB_MONTH_LIMIT = 3
 
@@ -28,7 +31,7 @@ export class JobService {
     page?: number,
     title?: string,
     company?: string,
-    location?: string,
+    location?: string
   ): Promise<JobApiResponse> {
     try {
       const limit = perPage || 15
@@ -57,7 +60,7 @@ export class JobService {
 
           location: {
             contains: location || '',
-            mode: 'insensitive'
+            mode: 'insensitive',
           },
         },
       })
@@ -76,7 +79,7 @@ export class JobService {
 
           location: {
             contains: location || '',
-            mode: 'insensitive'
+            mode: 'insensitive',
           },
         },
       })
@@ -108,7 +111,7 @@ export class JobService {
     let browser: Browser
 
     if (url.includes('caribbeanjobs')) {
-      this.logger.log("Using Puppeteer with proxy")
+      this.logger.log('Using Puppeteer with proxy')
       browser = await puppeteer.launch({
         args: ['--proxy-server=p.webshare.io:80'],
       })
@@ -132,7 +135,7 @@ export class JobService {
       await page.setExtraHTTPHeaders({
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
-        'Referer': 'none'
+        Referer: 'none',
       })
 
       await page.goto(url)
@@ -163,7 +166,10 @@ export class JobService {
   }
 
   // Helper function to get or create a Company
-  async getOrCreateCompany(companyName: string, logoUrl?: string): Promise<Company> {
+  async getOrCreateCompany(
+    companyName: string,
+    logoUrl?: string
+  ): Promise<Company> {
     const trimmedName = companyName.trim()
 
     let company = await this.prisma.company.findUnique({
@@ -171,11 +177,13 @@ export class JobService {
     })
 
     if (!company) {
-      company = await this.prisma.company.findUnique({
-        where: {
-          title: trimmedName.toUpperCase(),
-        },
-      }).catch(() => null)
+      company = await this.prisma.company
+        .findUnique({
+          where: {
+            title: trimmedName.toUpperCase(),
+          },
+        })
+        .catch(() => null)
     }
 
     // Create company if it doesn't exist
@@ -197,7 +205,9 @@ export class JobService {
       try {
         const response = await fetch(logoUrl)
         if (!response.ok) {
-          throw new Error(`Failed to download logo for company ${company.title}`)
+          throw new Error(
+            `Failed to download logo for company ${company.title}`
+          )
         }
         const buffer = await response.arrayBuffer()
 
@@ -206,7 +216,10 @@ export class JobService {
         let fileExtension = 'png'
         let mimeType = 'image/png'
 
-        if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
+        if (
+          contentType.includes('image/jpeg') ||
+          contentType.includes('image/jpg')
+        ) {
           fileExtension = 'jpg'
           mimeType = 'image/jpeg'
         } else if (contentType.includes('image/png')) {
@@ -226,10 +239,12 @@ export class JobService {
         // Create a safe filename using company ID and original filename from URL
         const fileName = `${company.id}/logo.${fileExtension}`
 
-        const { data, error } = await supabase.storage.from(BUCKET).upload(fileName, Buffer.from(buffer), {
-          cacheControl: '3600',
-          contentType: mimeType,
-        })
+        const { data, error } = await supabase.storage
+          .from(BUCKET)
+          .upload(fileName, Buffer.from(buffer), {
+            cacheControl: '3600',
+            contentType: mimeType,
+          })
 
         if (!error) {
           const publicUrl = `https://${this.configService.get<string>('SUPABASE_URL').split('//')[1]}/storage/v1/object/public/${data.fullPath}`
@@ -242,10 +257,14 @@ export class JobService {
             },
           })
         } else {
-          this.logger.warn(`Failed to upload logo for ${companyName}: ${JSON.stringify(error)}`)
+          this.logger.warn(
+            `Failed to upload logo for ${companyName}: ${JSON.stringify(error)}`
+          )
         }
       } catch (uploadError) {
-        this.logger.warn(`Error uploading logo for ${companyName}: ${JSON.stringify(uploadError)}`)
+        this.logger.warn(
+          `Error uploading logo for ${companyName}: ${JSON.stringify(uploadError)}`
+        )
       }
     }
 
@@ -288,19 +307,21 @@ export class JobService {
           where: {
             title_company: {
               title: exists.title,
-              company: companyData.title
-            }
+              company: companyData.title,
+            },
           },
           data: {
             ...exists,
-            companyId: companyData.id
-          }
+            companyId: companyData.id,
+          },
         })
       }
 
       return !exists
     } catch (e) {
-      this.logger.error(`Failed to add job ${title} to database: ${JSON.stringify(e)} `)
+      this.logger.error(
+        `Failed to add job ${title} to database: ${JSON.stringify(e)} `
+      )
       return false
     }
   }
@@ -313,7 +334,7 @@ export class JobService {
     total += await this.scrapeCaribbeanJobs()
     total += await this.scrapeJobsTT()
     // total += await this.scrapeTrinidadJobs()
-    total += await this.scrapeCRS();
+    total += await this.scrapeCRS()
     // total += await this.scrapeEveAnderson();
     total += await this.scrapeWebFx()
     total += await this.scrapeEmployTT()
@@ -322,7 +343,8 @@ export class JobService {
     total += await this.scrapeRBC()
 
     this.logger.log(
-      `Finished running all scrapers. ${total} total new job${total === 1 ? '' : 's'
+      `Finished running all scrapers. ${total} total new job${
+        total === 1 ? '' : 's'
       } added`
     )
   }
@@ -375,16 +397,16 @@ export class JobService {
       for (const el of jobs.toArray().reverse()) {
         const job = $(el)
         const title = job.find('.job-result-title>h2').text().trim()
-        let logoUrl = job.find('.job-result-logo img')?.attr('src')?.trim() || null
+        let logoUrl =
+          job.find('.job-result-logo img')?.attr('src')?.trim() || null
         const company = job.find('.job-result-title>h3').text().trim()
         const jobURL = job.find('.job-result-title>h2>a').attr('href')
         const description = job.find('p>span').text().trim()
         const location = job
           .find('.job-result-overview>.job-overview>li.location>a')
-          .map((i, el) => $(el).text().trim())
+          .map((_, el) => $(el).text().trim())
           .toArray()
           .join(' / ')
-
 
         // Skip default CaribbeanJobs logo
         if (logoUrl && logoUrl?.includes('default-small')) {
@@ -392,23 +414,27 @@ export class JobService {
         }
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: `${baseURL}${jobURL}`,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: `${baseURL}${jobURL}`,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping Caribbean Jobs. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping Caribbean Jobs. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added.`
       )
     } catch (e) {
@@ -428,7 +454,7 @@ export class JobService {
         headers: {
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
-        }
+        },
       })
       const body = await res.text()
 
@@ -442,29 +468,40 @@ export class JobService {
         const job = $(el)
         const title = job.find('div>h4.font-20').text().trim()
         const logoUrl = job.find('.company-logo img').attr('src') || null
-        const company = job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() || 'Employer Confidential'
+        const company =
+          job.find('ul.job-info>li>i.bi-buildings+strong')?.text()?.trim() ||
+          'Employer Confidential'
         const jobUrl = job.find('div>h4.font-20>a').attr('href')
-        const location = job.find('ul.job-info>li>span.flaticon-map-locator')?.parent()?.text()?.trim() || null
+        const location =
+          job
+            .find('ul.job-info>li>span.flaticon-map-locator')
+            ?.parent()
+            ?.text()
+            ?.trim() || null
         const description = ''
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: jobUrl,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: jobUrl,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping JobsTT. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping JobsTT. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added.`
       )
       return newJobs
@@ -580,7 +617,8 @@ export class JobService {
       }
 
       this.logger.log(
-        `Finished scraping CRS. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping CRS. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added.`
       )
       return newJobs
@@ -658,30 +696,35 @@ export class JobService {
       for (const el of jobs) {
         const job = $(el)
         const title = job.find('.awsm-job-post-title').text().trim()
-        const logoUrl = 'https://webfx.co.tt/wp-content/uploads/2025/01/Group-17.svg'
+        const logoUrl =
+          'https://webfx.co.tt/wp-content/uploads/2025/01/Group-17.svg'
         const company = 'WebFx'
         const description = ''
         const location = 'Maraval'
         const jobURL = job.find('.awsm-job-item').attr('href')
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: jobURL,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping WebFx. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping WebFx. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added`
       )
       return newJobs
@@ -702,7 +745,8 @@ export class JobService {
 
       await page.goto(url)
 
-      const pageDropDownSelector = 'div[data-control-type="items-per-page-drop-down"'
+      const pageDropDownSelector =
+        'div[data-control-type="items-per-page-drop-down"'
       await page.waitForSelector(pageDropDownSelector, { timeout: 30000 })
       const dropdown = await page.$(pageDropDownSelector)
       await dropdown.scrollIntoView()
@@ -733,23 +777,27 @@ export class JobService {
         const description = ''
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PUBLIC',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: jobURL,
+              sector: 'PUBLIC',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping EmployTT. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping EmployTT. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -779,7 +827,8 @@ export class JobService {
       const body = await res.json()
 
       this.logger.log(
-        `${body.meta.totalCount} job${body.meta.totalCount === 1 ? '' : 's'
+        `${body.meta.totalCount} job${
+          body.meta.totalCount === 1 ? '' : 's'
         } found.`
       )
       const jobs = body.result
@@ -793,23 +842,27 @@ export class JobService {
         const company = 'Massy Finance GFC Ltd'
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: jobURL,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping Massy Finance. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping Massy Finance. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -840,7 +893,8 @@ export class JobService {
       for (const el of jobs) {
         const job = $(el)
         const title = job.find('.hidden-phone > .jobTitle-link').text().trim()
-        const logoUrl = 'https://rmkcdn.successfactors.com/9de1f0b4/d58ef7c0-a27b-414d-bced-e.jpg'
+        const logoUrl =
+          'https://rmkcdn.successfactors.com/9de1f0b4/d58ef7c0-a27b-414d-bced-e.jpg'
         const jobURL = job.find('.hidden-phone > .jobTitle-link').attr('href')
         const description = ''
         const company = 'First Citizens Bank'
@@ -850,23 +904,27 @@ export class JobService {
           .trim()
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: `https://careers.firstcitizenstt.com${jobURL}`,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: `https://careers.firstcitizenstt.com${jobURL}`,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping FCB. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping FCB. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
@@ -935,29 +993,34 @@ export class JobService {
       for (const job of body.refineSearch.data.jobs) {
         const title = job.title
         const company = 'Royal Bank of Canada'
-        const logoUrl = 'https://cdn.phenompeople.com/CareerConnectResources/RBCAA0088/en_ca/desktop/assets/images/v-1730468409078-RBC-careers-logo.svg'
+        const logoUrl =
+          'https://cdn.phenompeople.com/CareerConnectResources/RBCAA0088/en_ca/desktop/assets/images/v-1730468409078-RBC-careers-logo.svg'
         const description = job.descriptionTeaser
         const jobURL = `https://jobs.rbc.com/ca/en/job/${job.jobId}`
         const location = job.city
 
         if (
-          await this.addJobToDatabase({
-            title,
-            company,
-            companyId: null,
-            description,
-            location,
-            url: jobURL,
-            sector: 'PRIVATE',
-            createdAt: null,
-            expiresAt: null,
-          }, logoUrl)
+          await this.addJobToDatabase(
+            {
+              title,
+              company,
+              companyId: null,
+              description,
+              location,
+              url: jobURL,
+              sector: 'PRIVATE',
+              createdAt: null,
+              expiresAt: null,
+            },
+            logoUrl
+          )
         )
           newJobs++
       }
 
       this.logger.log(
-        `Finished scraping RBC. ${newJobs} new job${newJobs === 1 ? '' : 's'
+        `Finished scraping RBC. ${newJobs} new job${
+          newJobs === 1 ? '' : 's'
         } added`
       )
     } catch (e) {
