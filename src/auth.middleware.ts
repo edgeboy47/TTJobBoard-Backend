@@ -10,7 +10,7 @@ import { NextFunction, Request, Response } from 'express'
 export class AuthMiddleware implements NestMiddleware {
   constructor(private configService: ConfigService) {}
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: Request, _res: Response, next: NextFunction) {
     const apiKeyHeader = 'x-api-key'
     const reqKey = req.headers?.[apiKeyHeader]
     const apiKey = this.configService.get<string>('API_KEY')

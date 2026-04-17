@@ -15,14 +15,14 @@ export class JobController {
   @Get()
   async getAllJobs(
     @Query()
-    params: JobSearchParams,
+    params: JobSearchParams
   ): Promise<JobApiResponse> {
     return this.service.getAllJobs(
       parseInt(params.perPage),
       parseInt(params.page),
       params.title,
       params.company,
-      params.location,
-    );
+      params.location
+    )
   }
 }
