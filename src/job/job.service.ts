@@ -24,7 +24,7 @@ export class JobService {
     private readonly configService: ConfigService
   ) {}
   private readonly logger = new Logger(JobService.name)
-  JOB_MONTH_LIMIT = 3
+  JOB_MONTH_LIMIT = 2
 
   async getAllJobs(
     perPage?: number,
