@@ -1,4 +1,6 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import {
   caribbeanJobsMarkup,
@@ -14,46 +16,57 @@ import {
 } from './fixtures'
 import { JobService } from './job.service'
 
+const mockPrismaService = {
+  job: {
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}
+
+const mockConfigService = {
+  get: vi.fn(),
+}
+
 describe('JobService', () => {
   let service: JobService
-  let mockPrismaService
-
-  // Mock PrismaService
-  jest
-    .mock<typeof import('../prisma/prisma.service')>('../prisma/prisma.service')
-    .setTimeout(10000)
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [JobService, PrismaService],
+      providers: [
+        JobService,
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
     }).compile()
 
     service = module.get<JobService>(JobService)
-    mockPrismaService = module.get<PrismaService>(PrismaService)
   })
 
   it('should be defined', () => {
     expect(service).toBeDefined()
-    expect(mockPrismaService).toBeDefined()
+    // expect(mockPrismaService).toBeDefined()
   })
 
   // TODO: add tests for getAllJobs
 
   describe('Scraping Caribbean Jobs', () => {
     beforeAll(() => {
-      jest
-        .spyOn(service, 'getMarkupWithPuppeteer')
-        .mockResolvedValue(caribbeanJobsMarkup)
+      vi.spyOn(service, 'getMarkupWithPuppeteer').mockResolvedValue(
+        caribbeanJobsMarkup
+      )
     })
 
-    afterEach(() => jest.clearAllMocks())
+    afterEach(() => vi.clearAllMocks())
 
     it('should get markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeCaribbeanJobs()
 
-      expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1)
+      expect(service.getMarkupWithPuppeteer).toHaveBeenCalledTimes(1)
       expect(
         service.getMarkupWithPuppeteer(expect.any(String), {
           selector: expect.any(String),
@@ -62,33 +75,33 @@ describe('JobService', () => {
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeCaribbeanJobs()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeCaribbeanJobs()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeCaribbeanJobs()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Insurance Sales Representatives / Advisors',
           company: 'Guardian Group – Dexter George Unit',
@@ -102,71 +115,71 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
   describe('Scraping JobsTT', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             text: () => Promise.resolve<string>(jobsTTMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeJobsTT()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeJobsTT()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeJobsTT()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeJobsTT()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'FACILITIES MANAGER (MID SIZED RETAIL MALL)',
           company: 'Memory Bank Computers Ltd',
@@ -182,17 +195,17 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeJobsTT()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
@@ -216,7 +229,7 @@ describe('JobService', () => {
   //
   //     await service.scrapeTrinidadJobs()
   //
-  //     expect(global.fetch).toBeCalledTimes(1)
+  //     expect(global.fetch).toHaveBeenCalledTimes(1)
   //   })
   //
   //   it('should check if job already exists', async () => {
@@ -225,8 +238,8 @@ describe('JobService', () => {
   //
   //     await service.scrapeTrinidadJobs()
   //
-  //     expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-  //     expect(mockPrismaService.job.create).not.toBeCalled()
+  //     expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+  //     expect(mockPrismaService.job.create).not.toHaveBeenCalled()
   //   })
   //
   //   it('should write to database if it does not already exist', async () => {
@@ -235,8 +248,8 @@ describe('JobService', () => {
   //
   //     await service.scrapeTrinidadJobs()
   //
-  //     expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-  //     expect(mockPrismaService.job.create).toBeCalledTimes(1)
+  //     expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+  //     expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
   //   })
   //
   //   it('should parse the given markup correctly', async () => {
@@ -269,24 +282,24 @@ describe('JobService', () => {
   //
   //     await service.scrapeJobsTT()
   //
-  //     // expect(mockLogger.log).not.toBeCalled();
-  //     // expect(mockLogger.error).toBeCalledTimes(1);
+  //     // expect(mockLogger.log).not.toHaveBeenCalled();
+  //     // expect(mockLogger.error).toHaveBeenCalledTimes(1);
   //   })
   // })
 
   describe('Scraping CRS', () => {
     beforeAll(() => {
-      jest.spyOn(service, 'getMarkupWithPuppeteer').mockResolvedValue(crsMarkup)
+      vi.spyOn(service, 'getMarkupWithPuppeteer').mockResolvedValue(crsMarkup)
     })
 
-    afterEach(() => jest.clearAllMocks())
+    afterEach(() => vi.clearAllMocks())
 
     it('should get markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeCRS()
 
-      expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1)
+      expect(service.getMarkupWithPuppeteer).toHaveBeenCalledTimes(1)
       expect(
         service.getMarkupWithPuppeteer(expect.any(String), {
           selector: expect.any(String),
@@ -295,33 +308,33 @@ describe('JobService', () => {
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeCRS()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeCRS()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeCRS()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Information Technology Manager',
           company: '',
@@ -337,17 +350,17 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
@@ -365,7 +378,7 @@ describe('JobService', () => {
   //
   //     await service.scrapeEveAnderson()
   //
-  //     expect(service.getMarkupWithPuppeteer).toBeCalledTimes(1)
+  //     expect(service.getMarkupWithPuppeteer).toHaveBeenCalledTimes(1)
   //     expect(
   //       service.getMarkupWithPuppeteer(expect.any(String), {
   //         selector: expect.any(String),
@@ -379,8 +392,8 @@ describe('JobService', () => {
   //
   //     await service.scrapeEveAnderson()
   //
-  //     expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-  //     expect(mockPrismaService.job.create).not.toBeCalled()
+  //     expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+  //     expect(mockPrismaService.job.create).not.toHaveBeenCalled()
   //   })
   //
   //   it('should write to database if it does not already exist', async () => {
@@ -389,8 +402,8 @@ describe('JobService', () => {
   //
   //     await service.scrapeEveAnderson()
   //
-  //     expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-  //     expect(mockPrismaService.job.create).toBeCalledTimes(1)
+  //     expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+  //     expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
   //   })
   //
   //   it('should parse the given markup correctly', async () => {
@@ -425,62 +438,62 @@ describe('JobService', () => {
   //
   //     await service.scrapeCaribbeanJobs()
   //
-  //     // expect(mockLogger.log).not.toBeCalled();
-  //     // expect(mockLogger.error).toBeCalledTimes(1);
+  //     // expect(mockLogger.log).not.toHaveBeenCalled();
+  //     // expect(mockLogger.error).toHaveBeenCalledTimes(1);
   //   })
   // })
 
   describe('Scraping WebFx', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             text: () => Promise.resolve<string>(webfxMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeWebFx()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeWebFx()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeWebFx()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeWebFx()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Digital Content Producer',
           company: 'WebFx',
@@ -494,71 +507,71 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
   describe('Scraping EmployTT', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             text: () => Promise.resolve<string>(employttMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeEmployTT()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeEmployTT()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeEmployTT()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeEmployTT()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Records Management Specialist',
           company: 'Ministry of Sport and Community Development',
@@ -572,71 +585,71 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
   describe('Scraping Massy Finance', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             json: () => Promise.resolve(massyFinanceMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeMassyFinance()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeMassyFinance()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeMassyFinance()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeMassyFinance()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Business Development Officer',
           company: 'Massy Finance GFC Ltd',
@@ -650,71 +663,71 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
   describe('Scraping FCB', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             text: () => Promise.resolve(fcbMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeFCB()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeFCB()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeFCB()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeFCB()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'PROGRAMMER ANALYST III',
           company: 'First Citizens Bank',
@@ -728,71 +741,71 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 
   describe('Scraping RBC', () => {
     beforeAll(() => {
-      jest.spyOn(global, 'fetch').mockImplementation(
-        jest.fn(() =>
+      vi.spyOn(global, 'fetch').mockImplementation(
+        vi.fn(() =>
           Promise.resolve({
             json: () => Promise.resolve(rbcMarkup),
           })
-        ) as jest.Mock
+        ) as any
       )
     })
 
     afterEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should call fetch', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeRBC()
 
-      expect(global.fetch).toBeCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeRBC()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).not.toBeCalled()
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
 
     it('should write to database if it does not already exist', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       await service.scrapeRBC()
 
-      expect(mockPrismaService.job.findUnique).toBeCalledTimes(1)
-      expect(mockPrismaService.job.create).toBeCalledTimes(1)
+      expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
+      expect(mockPrismaService.job.create).toHaveBeenCalledTimes(1)
     })
 
     it('should parse the given markup correctly', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
-      jest.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(false)
+      vi.spyOn(mockPrismaService.job, 'create').mockResolvedValue(undefined)
 
       const amount = await service.scrapeRBC()
 
       expect(amount).toBe(1)
-      expect(mockPrismaService.job.create.mock.calls[0][0]).toStrictEqual({
+      expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Account Manager',
           company: 'Royal Bank of Canada',
@@ -807,17 +820,17 @@ describe('JobService', () => {
 
     // TODO: figure out how to mock logger
     it.skip('should catch exceptions', async () => {
-      jest.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
+      vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // jest.spyOn(mockLogger, 'log');
-      // jest.spyOn(mockLogger, 'error');
+      // vi.spyOn(mockLogger, 'log');
+      // vi.spyOn(mockLogger, 'error');
 
       await service.scrapeCaribbeanJobs()
 
-      // expect(mockLogger.log).not.toBeCalled();
-      // expect(mockLogger.error).toBeCalledTimes(1);
+      // expect(mockLogger.log).not.toHaveBeenCalled();
+      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
     })
   })
 })
