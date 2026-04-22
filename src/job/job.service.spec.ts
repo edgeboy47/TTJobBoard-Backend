@@ -85,6 +85,7 @@ describe('JobService', () => {
 
       await service.scrapeCaribbeanJobs()
 
+      expect(mockPrismaService.company.findUnique).toHaveBeenCalledTimes(1)
       expect(mockPrismaService.job.findUnique).toHaveBeenCalledTimes(1)
       expect(mockPrismaService.job.create).not.toHaveBeenCalled()
     })
@@ -124,11 +125,11 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      expect(service.scrapeCaribbeanJobs()).resolves.toEqual(0)
+      await expect(service.scrapeCaribbeanJobs()).resolves.toEqual(0)
     })
   })
 
-  describe.skip('Scraping JobsTT', () => {
+  describe('Scraping JobsTT', () => {
     beforeAll(() => {
       vi.spyOn(global, 'fetch').mockImplementation(
         vi.fn(() =>
@@ -181,7 +182,8 @@ describe('JobService', () => {
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'FACILITIES MANAGER (MID SIZED RETAIL MALL)',
-          company: 'Memory Bank Computers Ltd',
+          company: undefined,
+          companyId: undefined,
           description: '',
           location: 'Other',
           url: expect.stringMatching(
@@ -192,19 +194,12 @@ describe('JobService', () => {
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeJobsTT()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeJobsTT()).resolves.toEqual(0)
     })
   })
 
