@@ -281,7 +281,7 @@ describe('JobService', () => {
   //   })
   // })
 
-  describe.skip('Scraping CRS', () => {
+  describe('Scraping CRS', () => {
     beforeAll(() => {
       vi.spyOn(service, 'getMarkupWithPuppeteer').mockResolvedValue(crsMarkup)
     })
@@ -331,7 +331,8 @@ describe('JobService', () => {
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Information Technology Manager',
-          company: '',
+          company: undefined,
+          companyId: undefined,
           description: '',
           url: expect.stringMatching(
             /https:\/\/host.pcrecruiter.net\/pcrbin\/jobboard.aspx\?action=detail&recordid=161318495112243&pcr-id=.+$/
@@ -342,19 +343,12 @@ describe('JobService', () => {
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeCaribbeanJobs()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
     })
   })
 
