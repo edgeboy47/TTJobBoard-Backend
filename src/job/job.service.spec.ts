@@ -431,7 +431,7 @@ describe('JobService', () => {
   //   })
   // })
 
-  describe.skip('Scraping WebFx', () => {
+  describe('Scraping WebFx', () => {
     beforeAll(() => {
       vi.spyOn(global, 'fetch').mockImplementation(
         vi.fn(() =>
@@ -484,7 +484,8 @@ describe('JobService', () => {
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Digital Content Producer',
-          company: 'WebFx',
+          company: undefined,
+          companyId: undefined,
           description: '',
           url: 'https://webfx.co.tt/career/digital-content-producer/',
           location: 'Maraval',
@@ -493,19 +494,12 @@ describe('JobService', () => {
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeCaribbeanJobs()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
     })
   })
 
