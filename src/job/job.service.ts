@@ -746,7 +746,7 @@ export class JobService {
       await page.goto(url)
 
       const pageDropDownSelector =
-        'div[data-control-type="items-per-page-drop-down"'
+        'div[data-control-type="items-per-page-drop-down"]'
       await page.waitForSelector(pageDropDownSelector, { timeout: 30000 })
       const dropdown = await page.$(pageDropDownSelector)
       await dropdown.scrollIntoView()
@@ -763,6 +763,7 @@ export class JobService {
       const jobs = $('div#list>div.row.list>div.filter-item')
 
       this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
+      console.log(`body: ${body.length}`)
 
       for (const el of jobs) {
         const job = $(el)

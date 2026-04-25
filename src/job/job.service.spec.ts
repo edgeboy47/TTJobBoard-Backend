@@ -1,6 +1,15 @@
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import puppeteer, { Browser } from 'puppeteer'
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import {
   caribbeanJobsMarkup,
@@ -35,6 +44,7 @@ const mockConfigService = {
   get: vi.fn(),
 }
 
+vi.mock('puppeteer')
 describe('JobService', () => {
   let service: JobService
 
@@ -294,7 +304,7 @@ describe('JobService', () => {
       await service.scrapeCRS()
 
       expect(service.getMarkupWithPuppeteer).toHaveBeenCalledTimes(1)
-      expect(
+      await expect(
         service.getMarkupWithPuppeteer(expect.any(String), {
           selector: expect.any(String),
         })
@@ -503,27 +513,39 @@ describe('JobService', () => {
     })
   })
 
-  describe.skip('Scraping EmployTT', () => {
-    beforeAll(() => {
-      vi.spyOn(global, 'fetch').mockImplementation(
-        vi.fn(() =>
-          Promise.resolve({
-            text: () => Promise.resolve<string>(employttMarkup),
-          })
-        ) as any
-      )
+  describe('Scraping EmployTT', () => {
+    const mockPage = {
+      goto: vi.fn().mockResolvedValue(undefined),
+      waitForSelector: vi.fn().mockResolvedValue(undefined),
+      $: vi.fn().mockImplementation(() => {
+        return { scrollIntoView: vi.fn(), click: vi.fn() }
+      }),
+      content: vi.fn().mockResolvedValue(employttMarkup),
+      close: vi.fn().mockResolvedValue(undefined),
+    }
+
+    const mockBrowser: Partial<Browser> = {
+      newPage: vi.fn().mockResolvedValue(mockPage),
+      close: vi.fn().mockResolvedValue(undefined),
+    }
+
+    beforeEach(() => {
+      vi.mocked(puppeteer.launch).mockResolvedValue(mockBrowser as any)
     })
 
     afterEach(() => {
       vi.clearAllMocks()
     })
 
-    it('should call fetch', async () => {
+    it('should call puppeteer', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockResolvedValue(true)
 
       await service.scrapeEmployTT()
 
-      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(puppeteer.launch).toHaveBeenCalledTimes(1)
+      expect(mockBrowser.newPage).toHaveBeenCalledTimes(1)
+      expect(mockPage.goto).toHaveBeenCalledTimes(1)
+      expect(mockPage.content).toHaveBeenCalledTimes(1)
     })
 
     it('should check if job already exists', async () => {
@@ -555,29 +577,23 @@ describe('JobService', () => {
       expect(amount).toBe(1)
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
-          title: 'Records Management Specialist',
-          company: 'Ministry of Sport and Community Development',
+          title: 'BUSINESS OPERATIONS ASSISTANT II (Custodian Unit)',
+          company: undefined,
+          companyId: undefined,
           description: '',
-          url: 'https://employtt.gov.tt/jobs/view/273',
+          url: 'https://employtt.gov.tt/jobs/view/2238',
           location: 'Port of Spain',
           sector: 'PUBLIC',
         },
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeCaribbeanJobs()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeEmployTT()).resolves.toBe(0)
     })
   })
 

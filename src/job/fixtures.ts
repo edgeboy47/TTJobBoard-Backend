@@ -180,73 +180,77 @@ export const webfxMarkup = `<div class="awsm-job-listing-item awsm-grid-item" id
 <div class="awsm-job-more-container"><span class="awsm-job-more">Apply Now <span></span></span></div>			</div>
 </a>	</div>`
 
-export const employttMarkup = `<div class="job-section section pt-40 pt-lg-40 pt-md-35 pt-sm-15 pt-xs-5 pb-80 pb-lg-60 pb-md-40 pb-sm-20 pb-xs-10">
-<div class="container-sm">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="section-title-two mb-45 mb-xs-30">
-                <h3 class="title">Find your next job in a few clicks</h3>
-                
-            </div>
-        </div>
-    </div>
-    <div class="row">      
-                <div class="col-lg-12 pl-xs-20 pr-xs-20">
-                    <!-- Single Job Start  -->
-                    <div class="single-job style-two">
-                        <div class="info-top">
-                            <div class="job-image">
-                                <a href="https://employtt.gov.tt/jobs/view/273">
-                                    <img src="https://employtt.gov.tt/img/blank-img.png" alt="logo">
-                                </a>
-                            </div>
-                            <div class="job-info">
-                                <div class="job-info-inner">
-                                    <div class="job-info-top">
-                                        <div class="saveJob for-listing">
-                                            
-                                            
-                                            <a href="https://employtt.gov.tt/jobs/list/employmentStatus-cbx-fulltime" class="job-type-label ml-20 mr-20">full-time</a>
+export const employttMarkup = `<div id="list" class="tab-pane fade show active">
+                                <div class="row list">
+                                <div class="col-lg-12 mb-20 filter-item">
+                                            <!-- Single Job Start  -->
+                                            <div class="single-job style-two">
+                                                <div class="info-top">
+                                                    <div class="job-image">
+                                                        <a href="https://employtt.gov.tt/jobs/view/2238">
+                                                            <img src="https://employtt.gov.tt/storage/uploads/organization/1762867090098.png" alt="logo">
+                                                        </a>
+                                                    </div>
+                                                    <div class="job-info">
+                                                        <div class="job-info-inner">
+                                                            <div class="job-info-top">
+                                                                <div class="saveJob for-listing">
+                                                    
+                                                                                                                                        
+                                                                    <p class="hide employmentStatus">fulltime</p>
+                                                                    <a class="job-type-label ml-20 mr-20 employmentStatus">full-time</a>
 
-                                                                                                
-                                        </div>
-                                        <div class="title-name">
-                                            <h3 class="job-title">
-                                                <a href="https://employtt.gov.tt/jobs/view/273" class="decode">Records Management Specialist</a>
-                                            </h3>
-                                            <div class="employer-name">
-                                                <a href="https://employtt.gov.tt/employers/view/12" class="decode">Ministry of Sport and Community Development</a>
+                                                                    
+                                                                    <p class="hide creationDateSort">04/05/2026</p>
+                                                                    <p class="hide publishDateSort">04/16/2026</p>
+                                                                    <p class="hide deadlineDateSort">05/15/2026</p>
+
+                                                                </div>
+                                                                <div class="title-name">
+                                                                    <h3 class="job-title">
+                                                                        <a href="https://employtt.gov.tt/jobs/view/2238" class="title decode">BUSINESS OPERATIONS ASSISTANT II (Custodian Unit)</a>
+                                                                    </h3>
+                                                                    <div class="employer-name">
+                                                                        <a href="https://employtt.gov.tt/employers/view/59" class="employerfilter decode">Ministry of Justice</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="job-meta-two">
+                                                                <div class="field-salary_from">
+                                                                    salary 
+                                                                    
+                                                                    Concealed
+                                                                </div>
+                                                                <div class="field-map"><i class="lnr lnr-map-marker"></i><span class="locationfilter decode">Port of Spain</span></div>
+                                                            </div>
+                                                            <div class="job-meta-two">
+                                                                <div class="field-datetime"><i class="lnr lnr-clock"></i>published 1 week ago</div>
+                                                                <div class="field-datetime"><i class="lnr lnr-hourglass"></i>expires 15 May 2026</div>
+                                                                                                                                    <div class="">contract</div>
+                                                                                                                                
+                                                            </div>
+                                                            <div class="job-skill-tag">
+                                                                <a href="#" class="categoryfilter decode">Secretarial &amp; Admin</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="job-meta-two">
-                                        <div class="field-salary_from">
-                                            <i class="gj-icon gj-icon-money"></i>
-                                            salary Concealed
-                                        </div>
-                                        <div class="field-map"><a href="https://employtt.gov.tt/jobs/list/city-cbx-PortofSpain"><i class="lnr lnr-map-marker"></i>Port of Spain</a></div>
-                                        <div class="field-datetime"><i class="lnr lnr-clock"></i>published 2 days ago</div>
-                                        <div class="field-datetime"><i class="lnr lnr-hourglass"></i>expires 1 week from now</div>
-                                    </div>
-                                    <div class="job-skill-tag">
-                                        <a href="https://employtt.gov.tt/jobs/list/category-cbx-17" class="decode">Management</a>
+                                            <!-- Single Job End -->
+                                        </div></div>
+                                <div class="row">
+                                    <div class="col-12 jplist-panel">
+
+                                        <!-- pagination results -->
+                                        <div class="jplist-label" data-type="Page {current} of {pages}" data-control-type="pagination-info" data-control-name="paging" data-control-action="paging">Page 1 of 2</div>
+
+                                        <!-- pagination control -->
+                                        <div class="jplist-pagination" data-control-type="pagination" data-control-name="paging" data-control-action="paging"><div class="jplist-pagingprev jplist-hidden" data-type="pagingprev"><button type="button" class="jplist-first" data-number="0" data-type="first" title="">«</button><button type="button" class="jplist-prev" data-type="prev" title="" data-number="0">‹</button></div><div class="jplist-pagingmid" data-type="pagingmid"><div class="jplist-pagesbox" data-type="pagesbox"><button type="button" data-type="page" class="jplist-current" data-active="true" data-number="0" title="">1</button> <button type="button" data-type="page" data-number="1" title="">2</button> </div></div><div class="jplist-pagingnext" data-type="pagingnext"><button type="button" class="jplist-next" data-type="next" title="" data-number="1">›</button><button type="button" class="jplist-last" data-type="last" title="" data-number="1">»</button></div></div>
+
+                                        
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Single Job End -->
-                </div>                     
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="all-job">
-                <p>Top jobs are waiting for you. <a href="https://employtt.gov.tt/jobs/list">Browse all jobs <i class="fas fa-chevron-circle-right"></i></a></p>
-            </div>
-        </div>
-    </div>
-</div>
-</div>`
+                            </div>`
 
 export const massyFinanceMarkup = {
   meta: {
