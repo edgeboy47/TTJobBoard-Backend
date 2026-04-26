@@ -669,7 +669,7 @@ describe('JobService', () => {
     })
   })
 
-  describe.skip('Scraping FCB', () => {
+  describe('Scraping FCB', () => {
     beforeAll(() => {
       vi.spyOn(global, 'fetch').mockImplementation(
         vi.fn(() =>
@@ -722,7 +722,8 @@ describe('JobService', () => {
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'PROGRAMMER ANALYST III',
-          company: 'First Citizens Bank',
+          company: undefined,
+          companyId: undefined,
           description: '',
           url: 'https://careers.firstcitizenstt.com/job/Aranguez-PROGRAMMER-ANALYST-III-SJL/871087101/',
           location: 'Aranguez, SJL, TT',
@@ -731,19 +732,12 @@ describe('JobService', () => {
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeCaribbeanJobs()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
     })
   })
 

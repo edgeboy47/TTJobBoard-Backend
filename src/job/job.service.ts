@@ -763,7 +763,6 @@ export class JobService {
       const jobs = $('div#list>div.row.list>div.filter-item')
 
       this.logger.log(`${jobs.length} job${jobs.length === 1 ? '' : 's'} found`)
-      console.log(`body: ${body.length}`)
 
       for (const el of jobs) {
         const job = $(el)
