@@ -741,7 +741,7 @@ describe('JobService', () => {
     })
   })
 
-  describe.skip('Scraping RBC', () => {
+  describe('Scraping RBC', () => {
     beforeAll(() => {
       vi.spyOn(global, 'fetch').mockImplementation(
         vi.fn(() =>
@@ -794,7 +794,8 @@ describe('JobService', () => {
       expect(mockPrismaService.job.create.mock.calls[0][0]).toEqual({
         data: {
           title: 'Account Manager',
-          company: 'Royal Bank of Canada',
+          company: undefined,
+          companyId: undefined,
           description:
             'In this role you will provide investment solutions and advice to a pool of 75+ net-worth and institutional clients of RBC Investment Management (Caribbean) Limited and act as primary contact for the client...',
           url: 'https://jobs.rbc.com/ca/en/job/R-0000039022',
@@ -804,19 +805,12 @@ describe('JobService', () => {
       })
     })
 
-    // TODO: figure out how to mock logger
-    it.skip('should catch exceptions', async () => {
+    it('should catch exceptions', async () => {
       vi.spyOn(mockPrismaService.job, 'findUnique').mockImplementation(() => {
         throw new Error()
       })
 
-      // vi.spyOn(mockLogger, 'log');
-      // vi.spyOn(mockLogger, 'error');
-
-      await service.scrapeCaribbeanJobs()
-
-      // expect(mockLogger.log).not.toHaveBeenCalled();
-      // expect(mockLogger.error).toHaveBeenCalledTimes(1);
+      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
     })
   })
 })
