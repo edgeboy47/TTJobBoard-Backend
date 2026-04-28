@@ -45,6 +45,24 @@ const mockConfigService = {
 }
 
 vi.mock('puppeteer')
+
+// Mock the NestJS Logger to suppress output during tests
+vi.mock('@nestjs/common', async original => {
+  const actual = await original()
+  class MockLogger {
+    log = vi.fn()
+    error = vi.fn()
+    warn = vi.fn()
+    debug = vi.fn()
+    verbose = vi.fn()
+  }
+
+  return {
+    ...(actual as any),
+    Logger: MockLogger,
+  }
+})
+
 describe('JobService', () => {
   let service: JobService
 
