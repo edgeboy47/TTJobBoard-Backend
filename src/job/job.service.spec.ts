@@ -62,7 +62,8 @@ describe('JobService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined()
-    // expect(mockPrismaService).toBeDefined()
+    expect(mockPrismaService).toBeDefined()
+    expect(mockConfigService).toBeDefined()
   })
 
   // TODO: add tests for getAllJobs
@@ -135,7 +136,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toEqual(0)
+      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
     })
   })
 
@@ -358,7 +359,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
+      await expect(service.scrapeCRS()).resolves.toBe(0)
     })
   })
 
@@ -509,7 +510,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
+      await expect(service.scrapeWebFx()).resolves.toBe(0)
     })
   })
 
@@ -665,7 +666,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
+      await expect(service.scrapeMassyFinance()).resolves.toBe(0)
     })
   })
 
@@ -737,7 +738,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
+      await expect(service.scrapeFCB()).resolves.toBe(0)
     })
   })
 
@@ -810,7 +811,7 @@ describe('JobService', () => {
         throw new Error()
       })
 
-      await expect(service.scrapeCaribbeanJobs()).resolves.toBe(0)
+      await expect(service.scrapeRBC()).resolves.toBe(0)
     })
   })
 })
