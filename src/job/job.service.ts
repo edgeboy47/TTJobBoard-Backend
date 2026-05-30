@@ -196,7 +196,7 @@ export class JobService {
     }
 
     // add logos to new and existing companies
-    if (!company.logoUrl && logoUrl) {
+    if (!company.logoUrl && logoUrl && companyName) {
       const supabase = createClient(
         this.configService.get<string>('SUPABASE_URL'),
         this.configService.get<string>('SUPABASE_API_KEY')
