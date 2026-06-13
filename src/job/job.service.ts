@@ -326,11 +326,12 @@ export class JobService {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_2_HOURS)
   async runScrapers() {
     this.logger.log('Running all scrapers')
     let total = 0
 
+    total += await this.scrapeCaribbeanJobs()
     total += await this.scrapeJobsTT()
     // total += await this.scrapeTrinidadJobs()
     total += await this.scrapeCRS()
@@ -371,7 +372,6 @@ export class JobService {
     }
   }
 
-  @Cron(CronExpression.EVERY_4_HOURS)
   async scrapeCaribbeanJobs(): Promise<number> {
     const baseURL = 'https://www.caribbeanjobs.com'
     const url =
